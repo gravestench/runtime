@@ -50,19 +50,16 @@ func (s *MyService) Name() string {
 
 func main() {
 	// Create a new instance of the Runtime Manager
-	runtime := runtime.New("My Runtime")
+	r := runtime.New("My Runtime")
 
 	// Create an instance of your service
 	service := &MyService{}
 
 	// Add the service to the Runtime Manager
-	runtime.Add(service)
+	r.Add(service)
 
 	// Run the Runtime Manager
-	runtime.Run()
-
-	// Perform any cleanup logic
-	fmt.Println("Exiting...")
+	r.Run()
 }
 ```
 
@@ -217,7 +214,7 @@ logging integration, and more.
 Make sure to import the `github.com/rs/zerolog` library for using the `zerolog.Logger`
 type in your service implementations.
 
-## HasGracefulShutdown
+### HasGracefulShutdown
 
 The `HasGracefulShutdown` interface is an extension of the `RuntimeServiceInterface`
 interface that provides a standardized way to handle graceful shutdown for services. It
