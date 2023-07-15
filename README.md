@@ -1,12 +1,10 @@
 # About
 
-This package provides an implementation of a "runtime", which is just a wrapper for a
-collection of "services," where a service is domain-specific and merely implements
-the `RuntimeServiceInterface`.
+This package provides an implementation of a "runtime", which is just a wrapper 
+for a collection of "services."
 
-The `Runtime` itself is a flexible manager for these runtime services. It allows you to
-add and remove services within your Go applications. The Runtime includes features such
-as dependency resolution, logger integration, and graceful shutdown.
+The `Runtime` itself merely manages the service lifecycle, and includes features 
+such as dependency resolution, logger integration, and graceful shutdown.
 
 ## Installation
 
