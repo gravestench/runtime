@@ -123,7 +123,7 @@ func (r *Runtime) Services() *[]RuntimeServiceInterface {
 func (r *Runtime) Remove(service RuntimeServiceInterface) {
 	for i, svc := range r.services {
 		if svc == service {
-			r.logger.Info().Msgf("Removing '%s' service", service.Name())
+			r.logger.Info().Msgf("removing '%s' service", service.Name())
 			r.services = append(r.services[:i], r.services[i+1:]...)
 			break
 		}
@@ -133,22 +133,22 @@ func (r *Runtime) Remove(service RuntimeServiceInterface) {
 // Shutdown sends an interrupt signal to the Runtime, indicating it should exit.
 func (r *Runtime) Shutdown() {
 	r.quit <- os.Interrupt
-	r.logger.Info().Msg("Shutting down")
+	r.logger.Warn().Msg("initiating graceful shutdown")
 
 	for _, service := range r.services {
 		if quitter, ok := service.(HasGracefulShutdown); ok {
 
 			if l, ok := quitter.(UsesLogger); ok && l.Logger() != nil {
-				l.Logger().Info().Msg("Shutting down")
+				l.Logger().Warn().Msg("shutting down")
 			} else {
-				r.logger.Info().Msgf("Shutting down '%s' service", service.Name())
+				r.logger.Warn().Msgf("shutting down '%s' service", service.Name())
 			}
 
 			quitter.OnShutdown()
 		}
 	}
 
-	r.logger.Info().Msg("Exiting")
+	r.logger.Info().Msg("exiting")
 }
 
 // Name returns the name of the Runtime manager.
@@ -158,7 +158,7 @@ func (r *Runtime) Name() string {
 
 // Run starts the Runtime manager and waits for an interrupt signal to exit.
 func (r *Runtime) Run() {
-	r.logger.Info().Msg("Beginning run loop...")
+	r.logger.Info().Msg("beginning run loop")
 
 	<-r.quit              // blocks until signal is recieved
 	fmt.Printf("\033[2D") // Remove ^C from stdout
