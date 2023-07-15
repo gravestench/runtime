@@ -16,7 +16,7 @@ var _ RuntimeInterface = &Runtime{}
 type Runtime struct {
 	name     string
 	quit     chan os.Signal
-	services []interface{}
+	services []RuntimeServiceInterface
 	logger   *zerolog.Logger
 }
 
@@ -49,7 +49,7 @@ func (r *Runtime) init() {
 	r.quit = make(chan os.Signal, 1)
 	signal.Notify(r.quit, os.Interrupt)
 
-	r.services = make([]interface{}, 0)
+	r.services = make([]RuntimeServiceInterface, 0)
 
 	// Prevent deadlock panic by continuously sleeping
 	go func() {
@@ -101,23 +101,21 @@ func (r *Runtime) resolveDependenciesAndInit(resolver DependencyResolver) {
 
 // initService initializes a service and adds it to the Runtime manager.
 func (r *Runtime) initService(service RuntimeServiceInterface) {
-	//r.logger.Info().Msgf("Adding '%s' service", service.Name())
-
-	r.services = append(r.services, service)
-
-	// Initialize the service
-	service.Init(r)
-
 	if l, ok := service.(UsesLogger); ok && l.Logger() != nil {
 		l.Logger().Info().Msg("initializing")
 	} else {
 		r.logger.Info().Msgf("initializing '%s' service", service.Name())
 	}
+
+	r.services = append(r.services, service)
+
+	// Initialize the service
+	service.Init(r)
 }
 
 // Services returns a pointer to a slice of interfaces representing the services managed by the Runtime.
-func (r *Runtime) Services() *[]interface{} {
-	duplicate := append([]interface{}{}, r.services...)
+func (r *Runtime) Services() *[]RuntimeServiceInterface {
+	duplicate := append([]RuntimeServiceInterface{}, r.services...)
 	return &duplicate
 }
 
@@ -132,9 +130,25 @@ func (r *Runtime) Remove(service RuntimeServiceInterface) {
 	}
 }
 
-// Quit sends an interrupt signal to the Runtime manager, indicating it should exit.
-func (r *Runtime) Quit() {
+// Shutdown sends an interrupt signal to the Runtime, indicating it should exit.
+func (r *Runtime) Shutdown() {
 	r.quit <- os.Interrupt
+	r.logger.Info().Msg("Shutting down")
+
+	for _, service := range r.services {
+		if quitter, ok := service.(HasGracefulShutdown); ok {
+
+			if l, ok := quitter.(UsesLogger); ok && l.Logger() != nil {
+				l.Logger().Info().Msg("Shutting down")
+			} else {
+				r.logger.Info().Msgf("Shutting down '%s' service", service.Name())
+			}
+
+			quitter.OnShutdown()
+		}
+	}
+
+	r.logger.Info().Msg("Exiting")
 }
 
 // Name returns the name of the Runtime manager.
@@ -145,7 +159,9 @@ func (r *Runtime) Name() string {
 // Run starts the Runtime manager and waits for an interrupt signal to exit.
 func (r *Runtime) Run() {
 	r.logger.Info().Msg("Beginning run loop...")
-	<-r.quit
+
+	<-r.quit              // blocks until signal is recieved
 	fmt.Printf("\033[2D") // Remove ^C from stdout
-	r.logger.Info().Msg("Exiting")
+
+	r.Shutdown()
 }

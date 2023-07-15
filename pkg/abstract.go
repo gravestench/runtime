@@ -18,7 +18,9 @@ type RuntimeInterface interface {
 
 	// Services returns a pointer to a slice of interfaces representing the
 	// services currently managed by the service RuntimeInterface.
-	Services() *[]interface{}
+	Services() *[]RuntimeServiceInterface
+
+	Shutdown()
 }
 
 // RuntimeServiceInterface represents a generic service within the RuntimeInterface.
@@ -59,8 +61,21 @@ type DependencyResolver interface {
 // The UsesLogger interface represents components that depend on a logger for
 // logging purposes. It defines a method to set the logger instance.
 type UsesLogger interface {
+	RuntimeServiceInterface
 	// UseLogger sets the logger instance for the component.
 	UseLogger(logger *zerolog.Logger)
 	// Logger yields the logger instance for the component.
 	Logger() *zerolog.Logger
+}
+
+// HasGracefulShutdown is an interface for services that require graceful shutdown handling.
+//
+// The HasGracefulShutdown interface extends the RuntimeServiceInterface interface and adds
+// a method for performing custom actions during graceful shutdown.
+type HasGracefulShutdown interface {
+	RuntimeServiceInterface
+
+	// OnShutdown is called during the graceful shutdown process to perform
+	// custom actions before the service is stopped.
+	OnShutdown()
 }
