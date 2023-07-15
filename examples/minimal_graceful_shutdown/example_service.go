@@ -19,14 +19,6 @@ func (e *example) Name() string {
 	return e.name
 }
 
-func (e *example) Logger() *zerolog.Logger {
-	return e.l
-}
-
-func (e *example) UseLogger(logger *zerolog.Logger) {
-	e.l = logger
-}
-
 func (e *example) OnShutdown() {
-	return
+	return // do cleanup here!
 }

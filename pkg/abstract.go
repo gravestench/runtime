@@ -40,11 +40,14 @@ type RuntimeServiceInterface interface {
 // DependencyResolver represents a service that can resolve its dependencies.
 //
 // The DependencyResolver interface extends the Service interface and adds
-// methods for managing dependencies. It allows services to declare their
-// dependencies, resolve them, and initialize themselves once all dependencies
-// are satisfied.
+// methods for managing dependencies. It allows services to declare whether
+// their dependencies are resolved, as well as a method that attempts to resolve
+// those dependencies with the given runtime.
+//
+// The Runtime will use this interface automatically when a service is added.
+// You do not need to implement this interface, it is optional. You would want
+// to do this when you have services that depend upon each other to operate
 type DependencyResolver interface {
-	// RuntimeServiceInterface represents the generic service interface.
 	RuntimeServiceInterface
 
 	// DependenciesResolved returns true if all dependencies are resolved. This

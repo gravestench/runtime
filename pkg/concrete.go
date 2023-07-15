@@ -86,12 +86,9 @@ func (r *Runtime) resolveDependenciesAndInit(resolver DependencyResolver) {
 		r.logger.Info().Msgf("resolving dependencies for '%s'", resolver.Name())
 	}
 
-	// Attempt to resolve dependencies
-	resolver.ResolveDependencies(r)
-
 	// Check if all dependencies are resolved
 	for !resolver.DependenciesResolved() {
-		r.resolveDependenciesAndInit(resolver)
+		resolver.ResolveDependencies(r)
 		time.Sleep(time.Millisecond * 10)
 	}
 
