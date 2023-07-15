@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/rs/zerolog"
 
-	runtime "runtime/pkg"
+	"github.com/gravestench/runtime"
 )
 
 type example struct {
@@ -11,7 +11,7 @@ type example struct {
 	name string
 }
 
-func (e *example) Init(r runtime.RuntimeInterface) {
+func (e *example) Init(r runtime.Runtime) {
 	return
 }
 

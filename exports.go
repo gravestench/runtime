@@ -1,12 +1,21 @@
 package runtime
 
 import (
-	"runtime/pkg"
+	"github.com/gravestench/runtime/pkg"
 )
 
+/*
+	these are just some exports to:
+	- prevent you from importing from pkg
+	- make the interfaces less wordy in your code
+*/
+
 type (
-	Runtime = pkg.Runtime
+	Runtime = pkg.RuntimeInterface
+	R       = Runtime // for even more brevity
+
 	Service = pkg.RuntimeServiceInterface
+	S       = Service
 )
 
 var New = pkg.New

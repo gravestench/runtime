@@ -1,4 +1,4 @@
-module runtime
+module github.com/gravestench/runtime
 
 go 1.19
 
