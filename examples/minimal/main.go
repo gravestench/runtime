@@ -7,11 +7,7 @@ import (
 func main() {
 	rt := runtime.New()
 
-	for _, service := range []runtime.Service{
-		&example{name: "foo"},
-	} {
-		rt.Add(service)
-	}
+	rt.Add(&example{name: "foo"})
 
 	rt.Run()
 }
