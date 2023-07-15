@@ -6,7 +6,7 @@ import (
 
 /*
 	these are just some exports to:
-	- prevent you from importing from pkg
+	- prevent you from having to know to import from pkg
 	- make the interfaces less wordy in your code
 */
 
