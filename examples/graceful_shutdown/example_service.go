@@ -11,6 +11,14 @@ type example struct {
 	name string
 }
 
+func (e *example) BindLogger(logger *zerolog.Logger) {
+	e.l = logger
+}
+
+func (e *example) Logger() *zerolog.Logger {
+	return e.l
+}
+
 func (e *example) Init(r runtime.Runtime) {
 	return
 }
@@ -20,5 +28,5 @@ func (e *example) Name() string {
 }
 
 func (e *example) OnShutdown() {
-	return // do cleanup here!
+	e.l.Info().Msg("doing cleanup here...")
 }

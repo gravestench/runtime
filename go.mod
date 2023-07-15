@@ -2,7 +2,10 @@ module github.com/gravestench/runtime
 
 go 1.19
 
-require github.com/rs/zerolog v1.29.1
+require (
+	github.com/google/uuid v1.3.0
+	github.com/rs/zerolog v1.29.1
+)
 
 require (
 	github.com/mattn/go-colorable v0.1.12 // indirect

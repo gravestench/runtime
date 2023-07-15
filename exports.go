@@ -11,10 +11,10 @@ import (
 */
 
 type (
-	Runtime = pkg.RuntimeInterface
+	Runtime = pkg.IsRuntime
 	R       = Runtime // for even more brevity
 
-	Service = pkg.RuntimeServiceInterface
+	Service = pkg.IsRuntimeService
 	S       = Service
 )
 

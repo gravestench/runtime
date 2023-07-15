@@ -1,25 +1,25 @@
 # About
 
-This package provides an implementation of a "runtime", which is just a wrapper 
+This module provides an implementation of a "runtime", which is just a wrapper 
 for a collection of "services."
 
-The `Runtime` itself merely manages the service lifecycle, and includes features 
-such as dependency resolution, logger integration, and graceful shutdown.
+The `Runtime` itself merely manages the service lifecycle. Included in this
+module are abstract interfaces for the runtime (`IsRuntime`) and runtime 
+services (`IsRuntimeService`), as well as other interfaces for logging, 
+dependency injection, and graceful shutdown.
 
 ## Installation
 
-To use the Runtime Manager package in your Go project, you can simply import it as follows:
+To use the Runtime package in your Go project, you can simply import it as follows:
 
 ```go
 import "github.com/gravestench/runtime"
 ```
 
-## Examples
+## Examples & Usage
 
-Please see the `examples` directory for concrete service implementations and 
-runtime usage examples. 
-
-## Usage
+Please see the `examples` directory for concrete service implementations and
+runtime usage examples.
 
 Here's an example of how to use the `Runtime` with the provided concrete implementation:
 
@@ -31,14 +31,14 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/yourusername/runtime"
+	"github.com/gravestench/runtime"
 )
 
 type MyService struct {
 	// Your service fields
 }
 
-func (s *MyService) Init(manager runtime.RuntimeServiceInterface) {
+func (s *MyService) Init(manager runtime.IsRuntime) {
 	// Initialization logic for your service
 }
 
@@ -68,12 +68,12 @@ The manager takes care of initializing your service and managing its lifecycle.
 ## Adding Services
 
 To add a service to the Runtime Manager, you need to create a struct that implements the
-`RuntimeServiceInterface` interface. This interface requires the implementation of the
+`IsRuntimeService` interface. This interface requires the implementation of the
 `Init()` and `Name()` methods.
 
 ```go
-type RuntimeServiceInterface interface {
-	Init(manager RuntimeServiceInterface)
+type IsRuntimeService interface {
+	Init(manager IsRuntimeService)
 	Name() string
 }
 ```
@@ -113,13 +113,13 @@ func (s *MyService) Quit() {
 
 The Runtime Manager integrates with the `zerolog` logging library to provide logging
 capabilities for your services. The manager automatically initializes a logger and passes
-it to the services that implement the `UsesLogger` interface.
+it to the services that implement the `HasLogger` interface.
 
-To use the logger within your service, you need to implement the `UsesLogger` interface
+To use the logger within your service, you need to implement the `HasLogger` interface
 and assign the logger to your service using the `UseLogger()` method:
 
 ```go
-type UsesLogger interface {
+type HasLogger interface {
 	UseLogger(logger *zerolog.Logger)
 }
 ```
@@ -143,70 +143,68 @@ service.
 ## Interfaces
 
 The `pkg` package provides several interfaces that define the contracts for managing
-services within the RuntimeInterface and implementing specific functionalities. These
+services within the IsRuntime and implementing specific functionalities. These
 interfaces are designed to promote modularity and extensibility in your codebase.
 
-### RuntimeInterface
+### IsRuntime
 
-The `RuntimeInterface` describes the contract of the concrete Runtime implementation that
+The `IsRuntime` describes the contract of the concrete Runtime implementation that
 is included in this repo.
 
 ```go
-type RuntimeInterface interface {
-    Add(RuntimeServiceInterface)
-    Remove(RuntimeServiceInterface)
-    Services() *[]RuntimeServiceInterface
+type IsRuntime interface {
+    Add(IsRuntimeService)
+    Remove(IsRuntimeService)
+    Services() *[]IsRuntimeService
     Shutdown()
 }
 ```
 
-### RuntimeServiceInterface
+### IsRuntimeService
 
-The `RuntimeServiceInterface` interface represents a generic service within the
-`RuntimeInterface`. It defines methods for initializing the service and retrieving its
+The `IsRuntimeService` interface represents a generic service within the
+`IsRuntime`. It defines methods for initializing the service and retrieving its
 name.
 
 ```go
-type RuntimeServiceInterface interface {
-    Init(RuntimeInterface)
+type IsRuntimeService interface {
+    Init(IsRuntime)
     Name() string
 }
 ```
 
-### DependencyResolver
+### HasDependencies
 
-The `DependencyResolver` interface extends the `RuntimeServiceInterface` interface and
+The `HasDependencies` interface extends the `IsRuntimeService` interface and
 adds methods for managing dependencies. It allows services to declare their dependencies,
 and to declare when they are resolved. The concrete implementation of the `Runtime` will
-use this `DependencyResolver` interface to resolves any dependencies before the `Init()`
+use this `HasDependencies` interface to resolves any dependencies before the `Init()`
 method of a given service is invoked. This is an optional interface, your services do not
 need to implement this.
 
 ```go
-type DependencyResolver interface {
-   
-
- RuntimeServiceInterface
+type HasDependencies interface {
+	IsRuntimeService
     DependenciesResolved() bool
-    ResolveDependencies(RuntimeInterface)
+    ResolveDependencies(IsRuntime)
 }
 ```
 
-### UsesLogger
+### HasLogger
 
-The `UsesLogger` interface represents components that depend on a logger for logging
+The `HasLogger` interface represents components that depend on a logger for logging
 purposes. It defines methods for setting the logger instance and retrieving the logger.
 This is an optional interface, your services do not need to implement this.
 
 ```go
-type UsesLogger interface {
+type HasLogger interface {
     UseLogger(logger *zerolog.Logger)
     Logger() *zerolog.Logger
 }
 ```
 
-These interfaces can be implemented by your services to define their behavior and
-interactions with the `RuntimeInterface`. They enable flexible dependency resolution,
+This interface can be implemented by your services to define their behavior and
+interactions with the runtime. They enable flexible dependency resolution,
 logging integration, and more.
 
 Make sure to import the `github.com/rs/zerolog` library for using the `zerolog.Logger`
@@ -214,7 +212,7 @@ type in your service implementations.
 
 ### HasGracefulShutdown
 
-The `HasGracefulShutdown` interface is an extension of the `RuntimeServiceInterface`
+The `HasGracefulShutdown` interface is an extension of the `IsRuntimeService`
 interface that provides a standardized way to handle graceful shutdown for services. It
 defines the `OnShutdown()` method, which allows services to perform custom actions before
 they are stopped during the shutdown process.
@@ -227,7 +225,7 @@ type MyService struct {
 	// Service fields
 }
 
-func (s *MyService) Init(manager RuntimeInterface) {
+func (s *MyService) Init(manager IsRuntime) {
 	// Initialization logic for your service
 }
 

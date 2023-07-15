@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/gravestench/runtime"
 )
 
@@ -14,6 +16,11 @@ func main() {
 	} {
 		rt.Add(service)
 	}
+
+	go func() {
+		time.Sleep(time.Second * 3)
+		rt.Shutdown()
+	}()
 
 	rt.Run()
 }
