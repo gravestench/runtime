@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	ee "github.com/gravestench/eventemitter"
 	"github.com/rs/zerolog"
 )
 
@@ -27,12 +28,12 @@ type IsRuntime interface {
 // IsRuntimeService represents a generic service within a runtime.
 //
 // The IsRuntimeService interface defines the contract that all services in the
-// IsRuntime must adhere to. It provides methods for initializing the service and
+// runtime must adhere to. It provides methods for initializing the service and
 // retrieving its name.
 type IsRuntimeService interface {
 	// Init initializes the service and establishes a connection to the
 	// service IsRuntime.
-	Init(IsRuntime)
+	Init(rt IsRuntime)
 
 	// Name returns the name of the service.
 	Name() string
@@ -82,4 +83,14 @@ type HasGracefulShutdown interface {
 	// OnShutdown is called during the graceful shutdown process to perform
 	// custom actions before the service is stopped.
 	OnShutdown()
+}
+
+// UsesEventBus is an interface for services that require the use of the global
+// runtime event bus.
+//
+// The UsesEventBus interface extends the IsRuntimeService interface and adds
+// a method that the runtime uses to pass a global event emitter to the service.
+type UsesEventBus interface {
+	IsRuntimeService
+	BindsEvents(*ee.EventEmitter)
 }

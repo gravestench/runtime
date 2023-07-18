@@ -20,7 +20,7 @@ type Runtime struct {
 	logger   *zerolog.Logger
 }
 
-// NewRuntime creates a new instance of the Runtime manager.
+// New creates a new instance of a Runtime.
 func New(args ...string) *Runtime {
 	name := "Runtime"
 
@@ -42,7 +42,7 @@ func (r *Runtime) ensureInit() {
 		return
 	}
 
-	r.logger = newLogger(r.Name())
+	r.logger = newLogger(r)
 
 	r.logger.Info().Msgf("initializing")
 
@@ -58,7 +58,7 @@ func (r *Runtime) Add(service IsRuntimeService) {
 
 	// Check if the service uses a logger
 	if loggerUser, ok := service.(HasLogger); ok {
-		loggerUser.BindLogger(newLogger(service.Name()))
+		loggerUser.BindLogger(newLogger(service))
 	}
 
 	r.services = append(r.services, service)
@@ -120,15 +120,15 @@ func (r *Runtime) Remove(service IsRuntimeService) {
 // Shutdown sends an interrupt signal to the Runtime, indicating it should exit.
 func (r *Runtime) Shutdown() {
 	r.quit <- os.Interrupt
-	r.logger.Warn().Msg("initiating graceful shutdown")
+	r.logger.Info().Msg("initiating graceful shutdown")
 
 	for _, service := range r.services {
 		if quitter, ok := service.(HasGracefulShutdown); ok {
 
 			if l, ok := quitter.(HasLogger); ok && l.Logger() != nil {
-				l.Logger().Warn().Msg("shutting down")
+				l.Logger().Info().Msg("shutting down")
 			} else {
-				r.logger.Warn().Msgf("shutting down '%s' service", service.Name())
+				r.logger.Info().Msgf("shutting down '%s' service", service.Name())
 			}
 
 			quitter.OnShutdown()

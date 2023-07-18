@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	rt := runtime.New()
+	rt := runtime.New("my runtime")
 
 	rt.Add(&example{name: "foo"})
 

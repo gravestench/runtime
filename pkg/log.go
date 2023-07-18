@@ -17,13 +17,21 @@ import (
 // newLogger creates a factory function that generates a
 // zerolog.Logger instance with a prefix and randomized colors based on the
 // provided name. The luminosity delta between the colors is greater than 0.5.
-func newLogger(name string) *zerolog.Logger {
-	c1 := getRandomColor(name)
-	c2 := getContrastingColor(c1, name)
+func newLogger(service interface{ Name() string }) *zerolog.Logger {
+	name := service.Name()
+	hash := name + "seed3" // picked arbitrarily to get a neat color/emoji combo
+
+	c1 := getRandomColor(hash)
+	c2 := getContrastingColor(c1, hash)
 
 	foregroundEscape := getRGBEscapeSequence(c2, false)
 	backgroundEscape := getRGBEscapeSequence(c1, true)
-	emoji := getRandomFoodEmoji(name)
+
+	emoji := getRandomFoodEmoji(hash)
+	if hasEmoji, ok := service.(interface{ Emoji() string }); ok {
+		emoji = hasEmoji.Emoji()
+	}
+
 	resetEscape := "\x1b[0m"
 
 	format := fmt.Sprintf(
@@ -84,7 +92,7 @@ func getContrastingColor(baseColor color.Color, name string) color.Color {
 		// Calculate the luminosity delta
 		luminosityDelta := math.Abs(contrastLuminosity - baseLuminosity)
 
-		if luminosityDelta > 0.5 {
+		if luminosityDelta > 0.45 {
 			return contrastColor
 		}
 	}
@@ -109,6 +117,7 @@ func getLuminosity(c color.RGBA) float64 {
 func getRandomColor(input string) color.Color {
 	// Initialize the hash function
 	hash := fnv.New32a()
+	hash.Write([]byte("foobar"))
 	hash.Write([]byte(input))
 	hashValue := hash.Sum32()
 
@@ -135,7 +144,8 @@ func hashString(s string) uint32 {
 // getRandomFoodEmoji selects a random food emoji based on the input name string.
 func getRandomFoodEmoji(name string) string {
 	// Convert the name string to lowercase and remove spaces
-	name = strings.ToLower(strings.ReplaceAll(name, " ", ""))
+	name = strings.ToLower(strings.ReplaceAll(name, " ",
+		""))
 
 	// Calculate the hash value of the name string
 	hash := fnv.New32a()
@@ -147,34 +157,17 @@ func getRandomFoodEmoji(name string) string {
 
 	// List of food emojis
 	foodEmojis := []string{
-		"🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🥭", "🍎", "🍏",
-		"🍐", "🍑", "🍒", "🍓", "🫐", "🥝", "🍅", "🫒", "🥥", "🥑",
-		"🍆", "🥔", "🥕", "🌽", "🌶️", "🫑", "🥒", "🥬", "🥦", "🧄",
-		"🧅", "🍄", "🥜", "🌰", "🍞", "🥐", "🥖", "🫓", "🥨", "🥯",
-		"🥞", "🧇", "🧀", "🍖", "🍗", "🥩", "🍔", "🍟", "🍕", "🌭",
-		"🥪", "🌮", "🌯", "🫔", "🥙", "🧆", "🥚", "🍳", "🥘", "🍲",
-		"🫕", "🥣", "🥗", "🍿", "🧈", "🧂", "🥫", "🍱", "🍘", "🍙",
-		"🍚", "🍛", "🍜", "🍝", "🍠", "🍢", "🍣", "🍤", "🍥", "🥮",
-		"🍡", "🥟", "🥠", "🥡", "🦀", "🦞", "🦐", "🦑", "🦪", "🍦",
-		"🍧", "🍨", "🍩", "🍪", "🎂", "🍰", "🧁", "🥧", "🍫", "🍬",
-		"🍭", "🍮", "🍯", "🍼", "🥛", "☕", "🍵", "🍶", "🍾", "🍷",
-		"🍸", "🍹", "🍺", "🍻", "🥂", "🥃", "🥤", "🧃", "🧉", "🧊",
-		"🍴", "🍽️", "🥣", "🥡", "🥢", "🥄", "🫕", "🍲", "🥘", "🍝",
-		"🥗", "🍛", "🍜", "🥪", "🥟", "🌭", "🍔", "🥠", "🍕", "🍟",
-		"🍚", "🌮", "🌯", "🍣", "🍱", "🍢", "🍱", "🍣", "🥠", "🍘",
-		"🍥", "🍙", "🍚", "🍛", "🍜", "🍝", "🍠", "🍡", "🍢", "🍣",
-		"🍤", "🍥", "🍡", "🍿", "🥫", "🍚", "🍛", "🍜", "🍝", "🍞",
-		"🍟", "🍠", "🍡", "🍢", "🍣", "🍤", "🍥", "🥮", "🍦", "🍧",
-		"🍨", "🍩", "🍪", "🎂", "🍰", "🧁", "🥧", "🍫", "🍬", "🍭",
-		"🍮", "🍯", "🍼", "🥛", "☕", "🍵", "🍶", "🍾", "🍷", "🍸",
-		"🍹", "🍺", "🍻", "🥂", "🥃", "🥤", "🧃", "🧉", "🧊", "🥢",
-		"🥄", "🥂", "🍾", "🥃", "🥤", "🧃", "🧉", "🧊", "🍴", "🍽️",
-		"🥣", "🥡", "🥢", "🥄", "🍷", "🍸", "🍹", "🍺", "🍻", "🥂",
-		"🥃", "🥤", "🧃", "🧉", "🧊", "🍺", "🍻", "🥂", "🥃", "🥤",
-		"🧃", "🧉", "🧊", "🍺", "🍻", "🥂", "🥃", "🥤", "🧃", "🧉",
-		"🧊", "🍺", "🍻", "🥂", "🥃", "🥤", "🧃", "🧉", "🧊", "🍺",
-		"🍻", "🥂", "🥃", "🥤", "🧃", "🧉", "🧊", "🍺", "🍻", "🥂",
-		"🥃", "🥤", "🧃", "🧉", "🧊",
+		"🌭", "🌮", "🌯", "🌯", "🌰", "🌶️", "🌽", "🍄", "🍅", "🍆", "🍇", "🍈",
+		"🍉", "🍊", "🍋", "🍌", "🍍", "🍎", "🍏", "🍐", "🍑", "🍒", "🍓", "🍔",
+		"🍕", "🍖", "🍗", "🍘", "🍙", "🍚", "🍛", "🍜", "🍝", "🍞", "🍟", "🍠",
+		"🍡", "🍢", "🍣", "🍤", "🍥", "🍦", "🍧", "🍨", "🍩", "🍪", "🍫", "🍬",
+		"🍭", "🍮", "🍮", "🍯", "🍰", "🍱", "🍲", "🍳", "🍴", "🍵", "🍶", "🍷",
+		"🍹", "🍺", "🍻", "🍼", "🍽️", "🍾", "🍿", "🎂", "🥂", "🥃", "🥄", "🥐",
+		"🥑", "🥒", "🥔", "🥕", "🥖", "🥗", "🥗", "🥘", "🥙", "🥚", "🥛", "🥛",
+		"🥜", "🥝", "🥞", "🥟", "🥟", "🥠", "🥡", "🥢", "🥣", "🥤", "🥥", "🥦",
+		"🥧", "🥧", "🥨", "🥩", "🥪", "🥪", "🥫", "🥬", "🥭", "🥮", "🥯", "🦀",
+		"🦐", "🦑", "🦞", "🦪", "🧀", "🧁", "🧂", "🧃", "🧄", "🧅", "🧆", "🧇",
+		"🧈", "🧉", "🧊",
 	}
 
 	// Select a random food emoji

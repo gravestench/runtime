@@ -11,11 +11,22 @@ import (
 */
 
 type (
+	IsRuntime        = pkg.IsRuntime        // an interface for the runtime
+	IsRuntimeService = pkg.IsRuntimeService // all services must implement this
+
 	Runtime = pkg.IsRuntime
 	R       = Runtime // for even more brevity
 
 	Service = pkg.IsRuntimeService
 	S       = Service
+)
+
+// use these interfaces to build your runtime services
+type (
+	HasGracefulShutdown = pkg.HasGracefulShutdown
+	HasLogger           = pkg.HasLogger
+	HasDependencies     = pkg.HasDependencies
+	UsesEventBus        = pkg.UsesEventBus
 )
 
 var New = pkg.New
