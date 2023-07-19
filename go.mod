@@ -4,11 +4,12 @@ go 1.19
 
 require (
 	github.com/faiface/beep v1.1.0
+	github.com/faiface/mainthread v0.0.0-20171120011319-8b78f0a41ae3
 	github.com/gempir/go-twitch-irc/v2 v2.8.1
 	github.com/gen2brain/beeep v0.0.0-20230602101333-f384c29b62dd
+	github.com/gen2brain/raylib-go/raylib v0.0.0-20230621111137-9def9b04c9ec
 	github.com/google/uuid v1.3.0
 	github.com/gravestench/eventemitter v0.0.0-20210902014026-73feeec3a47f
-	github.com/mattn/go-sixel v0.0.5
 	github.com/rs/zerolog v1.29.1
 	golang.org/x/oauth2 v0.10.0
 )
@@ -23,7 +24,6 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/soniakeys/quant v1.0.0 // indirect
 	github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af // indirect
 	golang.org/x/exp v0.0.0-20190306152737-a1d7652674e8 // indirect
 	golang.org/x/image v0.0.0-20190227222117-0694c2d4d067 // indirect
