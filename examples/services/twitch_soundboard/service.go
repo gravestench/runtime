@@ -8,8 +8,7 @@ import (
 	"github.com/gravestench/runtime/examples/services/desktop_notification"
 )
 
-// this is an example service that implements all handlers for the
-// twitch client we are using
+// this is an example service that implements only the OnPrivateMessage handler
 
 type Service struct {
 	configManager config_file.Manager // dependency on config file manager
