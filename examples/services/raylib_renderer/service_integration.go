@@ -12,9 +12,13 @@ var (
 	_ runtime.HasDependencies      = &Service{}
 	_ runtime.HasGracefulShutdown  = &Service{}
 	_ config_file.HasDefaultConfig = &Service{}
+	_ LayerRenderer                = &Service{}
 )
 
+type LayerRenderer interface {
+	AddLayer(RenderableLayer)
+}
+
 type RenderableLayer interface {
-	runtime.S
 	OnRender()
 }

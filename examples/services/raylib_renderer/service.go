@@ -1,7 +1,9 @@
 package raylib_renderer
 
 import (
+	"fmt"
 	"sync"
+	"unsafe"
 
 	"github.com/faiface/mainthread"
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -15,11 +17,16 @@ type Service struct {
 	log        *zerolog.Logger
 	mux        sync.Mutex
 	cfgManager config_file.Manager // dependency
-	layers     []RenderableLayer
+	layers     map[string]RenderableLayer
+	order      []string
 }
 
 func (s *Service) Init(rt pkg.IsRuntime) {
 	defer func() { _ = recover() /* don't worry about it */ }()
+
+	if s.layers == nil {
+		s.layers = make(map[string]RenderableLayer)
+	}
 
 	// raylib requires runtime.Run() to be passed into mainthread.Run in main.go
 	go s.gatherLayers(rt)
@@ -29,6 +36,24 @@ func (s *Service) Init(rt pkg.IsRuntime) {
 
 func (s *Service) OnShutdown() {
 	mainthread.Run(rl.CloseWindow)
+}
+
+func (s *Service) AddLayer(layer RenderableLayer) {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+
+	if s.layers == nil {
+		s.layers = make(map[string]RenderableLayer)
+	}
+
+	layerName := pointerAsString(layer)
+
+	if s.layers[layerName] != nil {
+		return
+	}
+
+	s.layers[layerName] = layer
+	s.order = append(s.order, layerName)
 }
 
 func (s *Service) Name() string {
@@ -41,4 +66,8 @@ func (s *Service) BindLogger(logger *zerolog.Logger) {
 
 func (s *Service) Logger() *zerolog.Logger {
 	return s.log
+}
+
+func pointerAsString(ptr interface{}) string {
+	return fmt.Sprintf("%p", unsafe.Pointer(&ptr))
 }

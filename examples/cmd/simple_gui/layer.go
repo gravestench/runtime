@@ -1,28 +1,22 @@
 package main
 
 import (
-	"fmt"
 	"image/color"
 	"math"
 	"math/rand"
 	"time"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
-
-	"github.com/gravestench/runtime/pkg"
 )
 
-type Layer struct {
-	vx, vy int32
-	x, y   int32
-	color  color.RGBA
-	name   string
-}
+func newLayer() *Layer {
+	l := &Layer{}
 
-func (l *Layer) Init(_ pkg.IsRuntime) {
 	l.color = randColor()
 
 	l.vx, l.vy = int32(rand.Intn(10))-5, int32(rand.Intn(10))-5
+
+	l.size = rand.Float32()*100 + 10
 
 	if l.vx == 0 {
 		l.vx = 1
@@ -33,14 +27,16 @@ func (l *Layer) Init(_ pkg.IsRuntime) {
 	}
 
 	l.x, l.y = int32(rand.Intn(1024)), int32(rand.Intn(768))
+
+	return l
 }
 
-func (l *Layer) Name() string {
-	if l.name == "" {
-		l.name = fmt.Sprintf("Layer ID: %s", randomString(3))
-	}
-
-	return l.name
+type Layer struct {
+	vx, vy int32
+	x, y   int32
+	size   float32
+	color  color.RGBA
+	name   string
 }
 
 func (l *Layer) OnRender() {
@@ -61,7 +57,7 @@ func (l *Layer) OnRender() {
 	l.x = nextX
 	l.y = nextY
 
-	rl.DrawCircle(l.x, l.y, 10, l.color)
+	rl.DrawCircle(l.x, l.y, l.size, l.color)
 }
 
 func modulo(n, m int32) int32 {

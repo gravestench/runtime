@@ -28,22 +28,14 @@ func (s *Service) initRenderer() {
 }
 
 func (s *Service) gatherLayers(rt runtime.R) {
-	bound := make(map[string]any)
-	s.layers = make([]RenderableLayer, 0)
-
 	for {
 		for _, service := range rt.Services() {
-			if _, alreadyBound := bound[service.Name()]; alreadyBound {
+			if _, alreadyBound := s.layers[service.Name()]; alreadyBound {
 				continue
 			}
 
 			if candidate, ok := service.(RenderableLayer); ok {
-				s.mux.Lock()
-
-				bound[service.Name()] = candidate
-				s.layers = append(s.layers, candidate)
-
-				s.mux.Unlock()
+				s.AddLayer(candidate)
 			}
 		}
 
@@ -66,8 +58,10 @@ func (s *Service) renderServicesAsLayers(rt runtime.R) {
 			rl.SetBlendMode(int32(rl.BlendAlpha))
 			rl.ClearBackground(rl.Black)
 
-			for _, layer := range s.layers {
-				layer.OnRender()
+			for _, name := range s.order {
+				if layer := s.layers[name]; layer != nil {
+					layer.OnRender()
+				}
 			}
 
 			rl.EndDrawing()
