@@ -21,7 +21,7 @@ type Service struct {
 	events                     *ee.EventEmitter
 	configs                    map[string]*Config
 	servicesWithDefaultConfigs map[string]HasDefaultConfig
-	dir                        string
+	RootDirectory              string
 }
 
 // BindLogger satisfies the runtime.HasLogger interface

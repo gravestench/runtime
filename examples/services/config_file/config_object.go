@@ -2,6 +2,8 @@ package config_file
 
 import (
 	"encoding/json"
+	"fmt"
+	"strconv"
 )
 
 func newConfig() *Config {
@@ -85,8 +87,16 @@ func (n Object) GetStrings(key string) []string {
 }
 
 func (n Object) GetInt(key string) int {
-	value, _ := n[key].(int)
-	return value
+	if value, ok := n[key].(int); ok {
+		return value
+	}
+
+	val, err := strconv.ParseInt(fmt.Sprintf("%v", n[key]), 10, 32)
+	if err != nil {
+		return 0
+	}
+
+	return int(val)
 }
 
 func (n Object) GetBool(key string) bool {

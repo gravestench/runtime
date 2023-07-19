@@ -17,11 +17,11 @@ func (s *Service) GetPath(name string) string {
 // ConfigDirectory returns the directory path where the service's configurations are stored.
 // If the directory is not set, it returns a default.
 func (s *Service) ConfigDirectory() string {
-	if s.dir == "" {
-		s.dir = defaultConfigDir
+	if s.RootDirectory == "" {
+		s.RootDirectory = defaultConfigDir
 	}
 
-	return s.dir
+	return s.RootDirectory
 }
 
 // GetConfig retrieves a configuration by its path from the service's internal map.
@@ -66,10 +66,10 @@ func (s *Service) SetConfigDirectory(dir string) error {
 	defer s.mux.Unlock()
 
 	if exists, err := directoryExists(dir); !exists || err != nil {
-		return fmt.Errorf("bad config dir: %v", dir)
+		return fmt.Errorf("bad config RootDirectory: %v", dir)
 	}
 
-	s.dir = dir
+	s.RootDirectory = dir
 
 	return nil
 }
@@ -96,11 +96,14 @@ func (s *Service) createConfigUnsafe(path string) (*Config, error) {
 		s.configs = make(map[string]*Config)
 	}
 
-	path = prefixIfPathRelative(s.ConfigDirectory(), path)
+	path = expandHomeDirectory(prefixIfPathRelative(s.ConfigDirectory(), path))
 
-	// check if dir exists
+	// check if RootDirectory exists
 	if exists, err := directoryExistsForFile(path); !exists || err != nil {
-		return nil, fmt.Errorf("bad config file path (directory doesnt exist): %v", path)
+		base := filepath.Dir(path)
+		if err = os.MkdirAll(base, 0755); err != nil {
+			return nil, fmt.Errorf("bad config file path (directory doesnt exist, couldnt create): %v", path)
+		}
 	}
 
 	// check if we already have an existing config
