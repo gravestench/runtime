@@ -6,7 +6,7 @@ import (
 
 // this is a static check that my service satisfies the
 // recipe below. This should prevent the code from compiling
-// if this service should implement these interfaces.
+// if this service should not implement these interfaces.
 var _ recipe = &Service{}
 
 type recipe interface {

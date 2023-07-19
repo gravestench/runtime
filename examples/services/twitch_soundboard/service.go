@@ -6,21 +6,10 @@ import (
 	"github.com/gravestench/runtime"
 	"github.com/gravestench/runtime/examples/services/config_file"
 	"github.com/gravestench/runtime/examples/services/desktop_notification"
-	"github.com/gravestench/runtime/examples/services/twitch_integration"
 )
 
 // this is an example service that implements all handlers for the
 // twitch client we are using
-
-type recipe interface {
-	runtime.IsRuntimeService
-	runtime.HasLogger
-	runtime.HasDependencies
-	config_file.HasDefaultConfig
-	twitch_integration.OnPrivateMessage
-}
-
-var _ recipe = &Service{}
 
 type Service struct {
 	configManager config_file.Manager // dependency on config file manager

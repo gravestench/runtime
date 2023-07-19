@@ -7,20 +7,9 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/rs/zerolog"
 
-	"github.com/gravestench/runtime"
 	"github.com/gravestench/runtime/examples/services/config_file"
 	"github.com/gravestench/runtime/pkg"
 )
-
-type recipe interface {
-	runtime.Service
-	runtime.HasLogger
-	runtime.HasDependencies
-	runtime.HasGracefulShutdown
-	config_file.HasDefaultConfig
-}
-
-var _ recipe = &Service{}
 
 type Service struct {
 	log        *zerolog.Logger

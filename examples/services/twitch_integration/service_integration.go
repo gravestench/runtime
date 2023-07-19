@@ -2,7 +2,22 @@ package twitch_integration
 
 import (
 	"github.com/gempir/go-twitch-irc/v2"
+
+	"github.com/gravestench/runtime"
+	"github.com/gravestench/runtime/examples/services/config_file"
 )
+
+// this is a static check that my service satisfies the
+// recipe below. This should prevent the code from compiling
+// if this service should not implement these interfaces.
+var _ recipe = &Service{}
+
+type recipe interface {
+	runtime.IsRuntimeService
+	runtime.HasLogger
+	runtime.HasDependencies
+	config_file.HasDefaultConfig
+}
 
 // the following interfaces are used by the twitch integration service to
 // discover and invoke the methods for binding event handlers.

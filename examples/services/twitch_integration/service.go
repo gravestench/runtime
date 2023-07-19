@@ -8,15 +8,6 @@ import (
 	"github.com/gravestench/runtime/examples/services/config_file"
 )
 
-type recipe interface {
-	runtime.IsRuntimeService
-	runtime.HasLogger
-	runtime.HasDependencies
-	config_file.HasDefaultConfig
-}
-
-var _ recipe = &Service{}
-
 type Service struct {
 	logger     *zerolog.Logger
 	cfgManager config_file.Manager

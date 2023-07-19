@@ -6,19 +6,9 @@ import (
 	"github.com/gen2brain/beeep"
 	"github.com/rs/zerolog"
 
-	"github.com/gravestench/runtime"
 	"github.com/gravestench/runtime/examples/services/config_file"
 	"github.com/gravestench/runtime/pkg"
 )
-
-type recipe interface {
-	runtime.Service
-	runtime.HasLogger
-	runtime.HasDependencies
-	config_file.HasDefaultConfig
-}
-
-var _ recipe = &Service{}
 
 type Service struct {
 	logger     *zerolog.Logger
