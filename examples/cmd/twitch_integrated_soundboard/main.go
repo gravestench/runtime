@@ -21,8 +21,8 @@ func main() {
 	rt.Add(&desktop_notification.Service{})
 
 	// this service has methods that satisfy an interface the twitch integration
-	// service is looking for to bind event handlers. see examples/services/twitch_integration/abstract.go for the
-	// interfaces
+	// service is looking for to bind event handlers.
+	// see examples/services/twitch_integration/abstract.go for the interfaces
 	rt.Add(&twitch_soundboard.Service{})
 
 	rt.Run()
