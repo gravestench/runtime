@@ -6,18 +6,14 @@ import (
 	"github.com/gravestench/runtime/examples/services/twitch_integration"
 )
 
-// this is a static check that my service satisfies the
-// recipe below. This should prevent the code from compiling
-// if this service should not implement these interfaces.
-var _ recipe = &Service{}
-
-type recipe interface {
-	runtime.IsRuntimeService
-	runtime.HasLogger
-	runtime.HasDependencies
-	config_file.HasDefaultConfig
-	IsTwitchSoundboard
-}
+// Ensure that Service implements the required interfaces.
+var (
+	_ runtime.IsRuntimeService     = &Service{}
+	_ runtime.HasLogger            = &Service{}
+	_ runtime.HasDependencies      = &Service{}
+	_ config_file.HasDefaultConfig = &Service{}
+	_ IsTwitchSoundboard           = &Service{}
+)
 
 type IsTwitchSoundboard interface {
 	twitch_integration.OnPrivateMessage

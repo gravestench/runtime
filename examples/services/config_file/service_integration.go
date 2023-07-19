@@ -4,17 +4,13 @@ import (
 	"github.com/gravestench/runtime"
 )
 
-// this is a static check that my service satisfies the
-// recipe below. This should prevent the code from compiling
-// if this service should not implement these interfaces.
-var _ recipe = &Service{}
-
-type recipe interface {
-	runtime.IsRuntimeService
-	runtime.HasLogger
-	runtime.UsesEventBus
-	Manager
-}
+// Ensure that Service implements the required interfaces.
+var (
+	_ runtime.IsRuntimeService = &Service{}
+	_ runtime.HasLogger        = &Service{}
+	_ runtime.UsesEventBus     = &Service{}
+	_ Manager                  = &Service{}
+)
 
 // The following interfaces are to be used much like the service interfaces
 // found inside of runtime/pkg. These can be used by other services to
