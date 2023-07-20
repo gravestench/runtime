@@ -6,6 +6,7 @@ import (
 	"time"
 
 	htgotts "github.com/hegedustibor/htgo-tts"
+	"github.com/hegedustibor/htgo-tts/handlers"
 	"github.com/rs/zerolog"
 
 	"github.com/gravestench/runtime/examples/services/config_file"
@@ -33,7 +34,11 @@ func (s *Service) Init(rt pkg.IsRuntime) {
 
 	cfgDir := g.GetString("directory")
 
-	s.speech = htgotts.Speech{Folder: expandHomeDirectory(cfgDir), Language: "en"}
+	s.speech = htgotts.Speech{
+		Folder:   expandHomeDirectory(cfgDir),
+		Language: "en",
+		Handler:  &handlers.Native{},
+	}
 }
 
 func (s *Service) Name() string {
