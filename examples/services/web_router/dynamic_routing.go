@@ -120,10 +120,9 @@ func (s *Service) bindNewRoutes(rt runtime.R) {
 
 		// handle route init
 		if r, ok := candidate.(IsRouteInitializer); ok {
-			if err := r.InitRoutes(s.root.Group(groupPrefix)); err == nil {
-				s.log.Info().Msgf("binding routes for the '%s' service", svcToInit.Name())
-				s.boundServices[svcToInit.Name()] = nil // make 0-size entry
-			}
+			r.InitRoutes(s.root.Group(groupPrefix))
+			s.boundServices[svcToInit.Name()] = nil // make 0-size entry
+			s.log.Info().Msgf("binding routes for the '%s' service", svcToInit.Name())
 
 			continue
 		}

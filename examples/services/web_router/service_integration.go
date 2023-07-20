@@ -32,5 +32,5 @@ type HasRouteSlug interface {
 // set up its own web routes using a base route group
 type IsRouteInitializer interface {
 	runtime.Service
-	InitRoutes(*gin.RouterGroup) error
+	InitRoutes(*gin.RouterGroup)
 }
