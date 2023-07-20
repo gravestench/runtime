@@ -93,7 +93,7 @@ func (r *Runtime) initService(service IsRuntimeService) {
 	if l, ok := service.(HasLogger); ok && l.Logger() != nil {
 		l.Logger().Info().Msg("initializing")
 	} else {
-		r.logger.Info().Msgf("initializing '%s' service", service.Name())
+		newLogger(service).Info().Msgf("initializing")
 	}
 
 	// Initialize the service
