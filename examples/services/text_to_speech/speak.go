@@ -1,12 +1,14 @@
 package text_to_speech
 
 import (
+	"time"
+
 	"github.com/hegedustibor/htgo-tts/voices"
 	"k8s.io/utils/strings/slices"
 )
 
 func (s *Service) Speak(text string) {
-	s.logger.Info().Msg(text)
+	s.logger.Info().Str("voice", s.speech.Language).Msg(text)
 
 	if err := s.speech.Speak(text); err != nil {
 		s.logger.Error().Msgf("could not convert text to speech: %v", err)
@@ -14,6 +16,10 @@ func (s *Service) Speak(text string) {
 }
 
 func (s *Service) SetVoice(name string) {
+	for s.speech.Folder == "" {
+		time.Sleep(time.Second)
+	}
+
 	s.speech.Language = voices.English
 
 	if slices.Contains(s.Voices(), name) {

@@ -10,10 +10,12 @@ import (
 func main() {
 	rt := runtime.New()
 
-	rt.Add(&config_file.Service{RootDirectory: "~/.config/runtime/example/twitch_integrated_text_to_speech"})
+	cfgDir := "~/.config/runtime/example/twitch_integrated_text_to_speech"
+
+	rt.Add(&config_file.Service{RootDirectory: cfgDir})
 	rt.Add(&twitch_integration.Service{})
 	rt.Add(&text_to_speech.Service{})
-	rt.Add(&glueService{})
+	rt.Add(&glueService{}) // this connects the twitch integration to the TTS
 
 	rt.Run()
 }
