@@ -11,22 +11,24 @@ import (
 )
 
 var (
-	_ runtime.Service               = &Service{}
-	_ web_router.IsRouteInitializer = &Service{}
+	_ runtime.Service               = &exampleRouteInitializer{}
+	_ web_router.IsRouteInitializer = &exampleRouteInitializer{}
 )
 
-type Service struct{}
+type exampleRouteInitializer struct{}
 
-func (s *Service) Init(rt pkg.IsRuntime) {
-
+func (s *exampleRouteInitializer) Init(rt pkg.IsRuntime) {
+	// nothing to do
 }
 
-func (s *Service) Name() string {
-	return "Example Service With Web Routes"
+func (s *exampleRouteInitializer) Name() string {
+	return "Example exampleRouteInitializer With Web Routes"
 }
 
-func (s *Service) InitRoutes(group *gin.RouterGroup) {
-	group.GET("", func(c *gin.Context) {
-		c.String(http.StatusOK, "It hella works!")
-	})
+func (s *exampleRouteInitializer) InitRoutes(group *gin.RouterGroup) {
+	group.GET("", s.exmapleHandler)
+}
+
+func (s *exampleRouteInitializer) exmapleHandler(c *gin.Context) {
+	c.String(http.StatusOK, "It hella works!")
 }

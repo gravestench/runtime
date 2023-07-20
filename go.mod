@@ -14,6 +14,7 @@ require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/google/uuid v1.3.0
 	github.com/gravestench/eventemitter v0.0.0-20210902014026-73feeec3a47f
+	github.com/hegedustibor/htgo-tts v0.0.0-20230402053941-cd8d1a158135
 	github.com/rs/zerolog v1.29.1
 	golang.org/x/oauth2 v0.10.0
 	k8s.io/utils v0.0.0-20230209194617-a36077c30491
@@ -70,8 +71,9 @@ require (
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
 	github.com/gophercloud/gophercloud v0.16.0 // indirect
 	github.com/gophercloud/utils v0.0.0-20210216074907-f6de111f2eae // indirect
-	github.com/hajimehoshi/go-mp3 v0.3.0 // indirect
+	github.com/hajimehoshi/go-mp3 v0.3.3 // indirect
 	github.com/hajimehoshi/oto v0.7.1 // indirect
+	github.com/hajimehoshi/oto/v2 v2.2.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
 	github.com/hashicorp/go-retryablehttp v0.6.8 // indirect
 	github.com/iij/doapi v0.0.0-20190504054126-0bbf12d6d7df // indirect

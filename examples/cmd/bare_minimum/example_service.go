@@ -8,7 +8,7 @@ type example struct {
 	name string
 }
 
-func (e *example) Init(r runtime.Runtime) {
+func (e *example) Init(r runtime.R) {
 	return
 }
 

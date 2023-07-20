@@ -15,7 +15,7 @@ func main() {
 	rt.Add(&web_server.Service{})
 	rt.Add(&web_router.Service{})
 
-	rt.Add(&Service{}) // our example service that has routes
+	rt.Add(&exampleRouteInitializer{}) // our example service that has routes
 
 	rt.Run()
 }
