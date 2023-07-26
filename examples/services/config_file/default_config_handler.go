@@ -7,7 +7,7 @@ import (
 	"github.com/gravestench/runtime"
 )
 
-func (s *Service) loopApplyDefaultConfigs(manager runtime.IsRuntime) {
+func (s *Service) loopApplyDefaultConfigs(manager runtime.R) {
 	for {
 		time.Sleep(time.Second)
 
@@ -15,7 +15,7 @@ func (s *Service) loopApplyDefaultConfigs(manager runtime.IsRuntime) {
 	}
 }
 
-func (s *Service) handleApplyDefaultConfig(manager runtime.IsRuntime) {
+func (s *Service) handleApplyDefaultConfig(manager runtime.R) {
 	for _, candidate := range manager.Services() {
 		err := s.applyDefaultConfig(candidate)
 		if err != nil {

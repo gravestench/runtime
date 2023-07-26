@@ -9,7 +9,7 @@ import (
 
 // Ensure that Service implements the required interfaces.
 var (
-	_ runtime.IsRuntimeService     = &Service{}
+	_ runtime.Service              = &Service{}
 	_ runtime.HasLogger            = &Service{}
 	_ runtime.HasDependencies      = &Service{}
 	_ config_file.HasDefaultConfig = &Service{}
