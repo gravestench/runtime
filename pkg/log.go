@@ -12,7 +12,7 @@ import (
 // newLogger creates a factory function that generates a
 // zerolog.Logger instance with a prefix and randomized colors based on the
 // provided name. The luminosity delta between the colors is greater than 0.5.
-func newLogger(service interface{ Name() string }) *zerolog.Logger {
+func newLogger(service interface{ Name() string }, level zerolog.Level) *zerolog.Logger {
 	name := service.Name()
 
 	writer := zerolog.ConsoleWriter{
@@ -22,7 +22,7 @@ func newLogger(service interface{ Name() string }) *zerolog.Logger {
 		},
 	}
 
-	logger := log.Output(writer).With().Logger()
+	logger := log.Output(writer).With().Logger().Level(level)
 
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 

@@ -8,7 +8,7 @@ import (
 )
 
 type recipe interface {
-	runtime.IsRuntimeService
+	runtime.R
 	runtime.HasLogger
 	runtime.HasDependencies
 }

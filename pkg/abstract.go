@@ -22,6 +22,8 @@ type IsRuntime interface {
 	// services currently managed by the service IsRuntime.
 	Services() []IsRuntimeService
 
+	SetLogLevel(level zerolog.Level)
+
 	Shutdown()
 }
 

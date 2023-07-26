@@ -61,7 +61,7 @@ func (r *Runtime) ensureInit() {
 		return
 	}
 
-	r.logger = newLogger(r)
+	r.logger = newLogger(r, zerolog.InfoLevel)
 
 	r.logger.Info().Msgf("initializing")
 
@@ -77,7 +77,7 @@ func (r *Runtime) Add(service IsRuntimeService) {
 
 	// Check if the service uses a logger
 	if loggerUser, ok := service.(HasLogger); ok {
-		loggerUser.BindLogger(newLogger(service))
+		loggerUser.BindLogger(newLogger(service, r.logger.GetLevel()))
 		r.events.Emit(events.EventServiceLoggerBound, service)
 	}
 
@@ -92,7 +92,25 @@ func (r *Runtime) Add(service IsRuntimeService) {
 		// No dependencies to resolve, directly initialize the service
 		go r.initService(service)
 	}
+}
 
+func (r *Runtime) SetLogLevel(level zerolog.Level) {
+	r.logger.Info().Msgf("setting log level to %s", level)
+
+	// set the log-level for the runtime's logger
+	instance := r.logger.Level(level)
+	r.logger = &instance
+
+	// set the log level for each service that has a logger
+	for _, service := range r.Services() {
+		candidate, ok := service.(HasLogger)
+		if !ok {
+			continue
+		}
+
+		candidateLogger := candidate.Logger().Level(level)
+		candidate.BindLogger(&candidateLogger)
+	}
 }
 
 func (r *Runtime) resolveDependenciesAndInit(resolver HasDependencies) {
@@ -117,7 +135,7 @@ func (r *Runtime) initService(service IsRuntimeService) {
 	if l, ok := service.(HasLogger); ok && l.Logger() != nil {
 		l.Logger().Info().Msg("initializing")
 	} else {
-		newLogger(service).Info().Msgf("initializing")
+		newLogger(service, r.logger.GetLevel()).Info().Msgf("initializing")
 	}
 
 	if candidate, ok := service.(UsesEventBus); ok {
