@@ -4,6 +4,7 @@ import (
 	"context"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gempir/go-twitch-irc/v2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -29,6 +30,7 @@ func (s *Service) setupClient() {
 	s.twitchIrcClient = twitch.NewClient(userName, oauthKey)
 
 	s.twitchIrcClient.Join(userName)
+	time.Sleep(time.Second)
 
 	go func() {
 		err = s.twitchIrcClient.Connect()
@@ -36,6 +38,7 @@ func (s *Service) setupClient() {
 			s.logger.Warn().Msg("get your oauth token here: https://twitchapps.com/tmi/")
 
 			cfgFilePath := filepath.Join(s.cfgManager.ConfigDirectory(), s.ConfigFilePath())
+			_ = s.cfgManager.SaveConfig(s.ConfigFilePath())
 			s.logger.Warn().Msgf("edit your config file: %s", cfgFilePath)
 
 			s.logger.Fatal().Msgf("could not connect: %v", err)

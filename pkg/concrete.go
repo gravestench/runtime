@@ -7,7 +7,10 @@ import (
 	"strings"
 	"time"
 
+	ee "github.com/gravestench/eventemitter"
 	"github.com/rs/zerolog"
+
+	"github.com/gravestench/runtime/pkg/events"
 )
 
 var _ IsRuntime = &Runtime{}
@@ -18,6 +21,7 @@ type Runtime struct {
 	quit     chan os.Signal
 	services []IsRuntimeService
 	logger   *zerolog.Logger
+	events   *ee.EventEmitter
 }
 
 // New creates a new instance of a Runtime.
@@ -29,7 +33,22 @@ func New(args ...string) *Runtime {
 	}
 
 	r := &Runtime{
-		name: name,
+		name:   name,
+		events: ee.New(),
+	}
+
+	for event, handler := range map[string]func(...any){
+		events.EventServiceAdded:                r.onEventServiceAdded,
+		events.EventServiceRemoved:              r.onEventServiceRemoved,
+		events.EventServiceInitialized:          r.onEventServiceInitialized,
+		events.EventServiceEventsBound:          r.onEventServiceEventsBound,
+		events.EventServiceLoggerBound:          r.onEventServiceLoggerBound,
+		events.EventRuntimeShutdownInitiated:    r.onEventRuntimeShutdownInitiated,
+		events.EventRuntimeRunLoopInitiated:     r.onEventRuntimeRunLoopInitiated,
+		events.EventDependencyResolutionStarted: r.onEventDependencyResolutionStarted,
+		events.EventDependencyResolutionEnded:   r.onEventDependencyResolutionEnded,
+	} {
+		r.events.On(event, handler)
 	}
 
 	r.ensureInit()
@@ -59,9 +78,11 @@ func (r *Runtime) Add(service IsRuntimeService) {
 	// Check if the service uses a logger
 	if loggerUser, ok := service.(HasLogger); ok {
 		loggerUser.BindLogger(newLogger(service))
+		r.events.Emit(events.EventServiceLoggerBound, service)
 	}
 
 	r.services = append(r.services, service)
+	r.events.Emit(events.EventServiceAdded, service)
 
 	// Check if the service is a HasDependencies
 	if resolver, ok := service.(HasDependencies); ok {
@@ -71,10 +92,11 @@ func (r *Runtime) Add(service IsRuntimeService) {
 		// No dependencies to resolve, directly initialize the service
 		go r.initService(service)
 	}
+
 }
 
 func (r *Runtime) resolveDependenciesAndInit(resolver HasDependencies) {
-	r.logger.Info().Msgf("resolving dependencies for '%s'", resolver.Name())
+	r.events.Emit(events.EventDependencyResolutionStarted, resolver)
 
 	// Check if all dependencies are resolved
 	for !resolver.DependenciesResolved() {
@@ -82,7 +104,9 @@ func (r *Runtime) resolveDependenciesAndInit(resolver HasDependencies) {
 		time.Sleep(time.Millisecond * 10)
 	}
 
-	r.logger.Info().Msgf("dependencies resolved for '%s'", resolver.Name())
+	r.events.Emit(events.EventDependencyResolutionEnded, resolver)
+
+	r.logger.Info().Msgf("dependencies resolved for %q", resolver.Name())
 
 	// All dependencies resolved, initialize the service
 	r.initService(resolver)
@@ -96,8 +120,15 @@ func (r *Runtime) initService(service IsRuntimeService) {
 		newLogger(service).Info().Msgf("initializing")
 	}
 
+	if candidate, ok := service.(UsesEventBus); ok {
+		candidate.BindsEvents(r.events)
+		r.events.Emit(events.EventServiceEventsBound)
+	}
+
 	// Initialize the service
 	service.Init(r)
+
+	r.events.Emit(events.EventServiceInitialized, service)
 }
 
 // Services returns a pointer to a slice of interfaces representing the services managed by the Runtime.
@@ -108,9 +139,10 @@ func (r *Runtime) Services() []IsRuntimeService {
 
 // Remove a specific service from the Runtime manager.
 func (r *Runtime) Remove(service IsRuntimeService) {
+	r.events.Emit(events.EventServiceRemoved)
 	for i, svc := range r.services {
 		if svc == service {
-			r.logger.Info().Msgf("removing '%s' service", service.Name())
+			r.logger.Info().Msgf("removing %q service", service.Name())
 			r.services = append(r.services[:i], r.services[i+1:]...)
 			break
 		}
@@ -119,8 +151,7 @@ func (r *Runtime) Remove(service IsRuntimeService) {
 
 // Shutdown sends an interrupt signal to the Runtime, indicating it should exit.
 func (r *Runtime) Shutdown() {
-	r.quit <- os.Interrupt
-	r.logger.Info().Msg("initiating graceful shutdown")
+	r.events.Emit(events.EventRuntimeShutdownInitiated)
 
 	for _, service := range r.services {
 		if quitter, ok := service.(HasGracefulShutdown); ok {
@@ -128,7 +159,7 @@ func (r *Runtime) Shutdown() {
 			if l, ok := quitter.(HasLogger); ok && l.Logger() != nil {
 				l.Logger().Info().Msg("shutting down")
 			} else {
-				r.logger.Info().Msgf("shutting down '%s' service", service.Name())
+				r.logger.Info().Msgf("shutting down %q service", service.Name())
 			}
 
 			quitter.OnShutdown()
@@ -145,10 +176,84 @@ func (r *Runtime) Name() string {
 
 // Run starts the Runtime manager and waits for an interrupt signal to exit.
 func (r *Runtime) Run() {
-	r.logger.Info().Msg("beginning run loop")
+	r.events.Emit(events.EventRuntimeRunLoopInitiated)
 
 	<-r.quit              // blocks until signal is recieved
 	fmt.Printf("\033[2D") // Remove ^C from stdout
 
 	r.Shutdown()
+}
+
+func (r *Runtime) onEventServiceAdded(args ...any) {
+	if len(args) < 1 {
+		return
+	}
+
+	if service, ok := args[0].(IsRuntimeService); ok {
+		r.logger.Info().Msgf("adding service %q", service.Name())
+	}
+}
+
+func (r *Runtime) onEventRuntimeShutdownInitiated(_ ...any) {
+	r.logger.Info().Msg("initiating graceful shutdown")
+}
+
+func (r *Runtime) onEventServiceRemoved(args ...any) {
+	if len(args) < 1 {
+		return
+	}
+
+	if service, ok := args[0].(IsRuntimeService); ok {
+		r.logger.Info().Msgf("removing service %q", service.Name())
+	}
+}
+func (r *Runtime) onEventServiceInitialized(args ...any) {
+	if len(args) < 1 {
+		return
+	}
+
+	if service, ok := args[0].(IsRuntimeService); ok {
+		r.logger.Info().Msgf("service %q initialization complete", service.Name())
+	}
+}
+func (r *Runtime) onEventServiceEventsBound(args ...any) {
+	if len(args) < 1 {
+		return
+	}
+
+	if service, ok := args[0].(IsRuntimeService); ok {
+		r.logger.Info().Msgf("events bound for service %q", service.Name())
+	}
+}
+func (r *Runtime) onEventServiceLoggerBound(args ...any) {
+	if len(args) < 1 {
+		return
+	}
+
+	if service, ok := args[0].(IsRuntimeService); ok {
+		r.logger.Info().Msgf("logger bound for service %q", service.Name())
+	}
+}
+func (r *Runtime) onEventRuntimeRunLoopInitiated(_ ...any) {
+	r.logger.Info().Msg("beginning run loop")
+}
+
+func (r *Runtime) onEventDependencyResolutionStarted(args ...any) {
+	if len(args) < 1 {
+		return
+	}
+
+	if service, ok := args[0].(IsRuntimeService); ok {
+		r.logger.Info().Msgf("dependency resolution started for service %q", service.Name())
+	}
+}
+
+func (r *Runtime) onEventDependencyResolutionEnded(args ...any) {
+	if len(args) < 1 {
+		return
+	}
+
+	if service, ok := args[0].(IsRuntimeService); ok {
+		r.logger.Info().Msgf("dependency resolution completed for service %q", service.Name())
+	}
 }

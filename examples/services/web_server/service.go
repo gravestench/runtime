@@ -12,7 +12,7 @@ import (
 
 type Service struct {
 	log        *zerolog.Logger
-	router     web_router.IsWebRouter
+	router     web_router.Dependency
 	cfgManager config_file.Manager
 	server     *http.Server
 	lastConfig string

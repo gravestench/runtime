@@ -12,6 +12,8 @@ var (
 	_ IsWebServer                  = &Service{}
 )
 
+type Dependency = IsWebServer
+
 type IsWebServer interface {
 	RestartServer()
 	StartServer()

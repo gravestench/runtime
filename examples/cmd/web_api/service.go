@@ -22,13 +22,13 @@ func (s *exampleRouteInitializer) Init(rt pkg.IsRuntime) {
 }
 
 func (s *exampleRouteInitializer) Name() string {
-	return "Example exampleRouteInitializer With Web Routes"
+	return "Example"
 }
 
 func (s *exampleRouteInitializer) InitRoutes(group *gin.RouterGroup) {
-	group.GET("", s.exmapleHandler)
+	group.GET("foobar", s.exampleHandler)
 }
 
-func (s *exampleRouteInitializer) exmapleHandler(c *gin.Context) {
-	c.String(http.StatusOK, "It hella works!")
+func (s *exampleRouteInitializer) exampleHandler(c *gin.Context) {
+	c.String(http.StatusOK, "foobar is foobar")
 }

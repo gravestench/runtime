@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/gravestench/runtime"
 	"github.com/gravestench/runtime/examples/services/config_file"
-	"github.com/gravestench/runtime/examples/services/desktop_notification"
 	"github.com/gravestench/runtime/examples/services/twitch_integration"
 	"github.com/gravestench/runtime/examples/services/twitch_soundboard"
 )
@@ -16,9 +15,6 @@ func main() {
 
 	// This service has a dependency on the config manager
 	rt.Add(&twitch_integration.Service{})
-
-	// this will print notifications
-	rt.Add(&desktop_notification.Service{})
 
 	// this service has methods that satisfy an interface the twitch integration
 	// service is looking for to bind event handlers.

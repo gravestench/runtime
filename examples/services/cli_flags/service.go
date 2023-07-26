@@ -14,11 +14,11 @@ import (
 )
 
 // Service is responsible for iterating over other services and
-// filtering out the CLI args which dont apply to that particular service.
+// filtering out the CLI args which don't apply to that particular service.
 // this addresses an issue with the golang flag implementation that
 // prevents flags from being defined per-module. If you try to parse
-// flags which are not supposed to be parsed, it errors early and doesnt
-// parse all of the flags.
+// flags which are not supposed to be parsed, it errors early and doesn't
+// parse all the flags.
 type Service struct {
 	log  *zerolog.Logger
 	args []string
@@ -72,7 +72,7 @@ func (s *Service) applyFlags(candidate runtime.Service) {
 		args := s.getArgs()
 		args = s.filterArgsForService(svc, args)
 
-		s.log.Info().Msgf("parsing CLI flags for '%s' service", svc.Name())
+		s.log.Info().Msgf("parsing CLI flags for %q service", svc.Name())
 
 		flagSet := flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 

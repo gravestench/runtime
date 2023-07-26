@@ -16,7 +16,7 @@ func newLayer() *Layer {
 
 	l.vx, l.vy = int32(rand.Intn(10))-5, int32(rand.Intn(10))-5
 
-	l.size = rand.Float32()*100 + 10
+	l.size = rand.Float32()*30 + 1
 
 	if l.vx == 0 {
 		l.vx = 1
@@ -36,7 +36,6 @@ type Layer struct {
 	x, y   int32
 	size   float32
 	color  color.RGBA
-	name   string
 }
 
 func (l *Layer) OnRender() {

@@ -114,7 +114,7 @@ func (s *Service) createConfigUnsafe(path string) (*Config, error) {
 	// try to create a new file
 	file, err := os.Create(path)
 	if err != nil {
-		return nil, fmt.Errorf("creating file '%s': %v", path, err)
+		return nil, fmt.Errorf("creating file %q: %v", path, err)
 	}
 	defer file.Close()
 
@@ -189,17 +189,17 @@ func (s *Service) saveConfigUnsafe(path string) error {
 
 	cfg, err := s.getConfigUnsafe(path)
 	if err != nil {
-		return fmt.Errorf("getting config '%s': %v", path, err)
+		return fmt.Errorf("getting config %q: %v", path, err)
 	}
 
 	fileData, err := cfg.Marshal()
 	if err != nil {
-		return fmt.Errorf("marshalling config data: '%s'", cfg)
+		return fmt.Errorf("marshalling config data: %q", cfg)
 	}
 
 	err = os.WriteFile(path, fileData, 0644)
 	if err != nil {
-		return fmt.Errorf("writing config data to file: '%s'", cfg)
+		return fmt.Errorf("writing config data to file: %q", cfg)
 	}
 
 	return nil

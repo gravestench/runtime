@@ -19,7 +19,7 @@ func (s *Service) handleApplyDefaultConfig(manager runtime.IsRuntime) {
 	for _, candidate := range manager.Services() {
 		err := s.applyDefaultConfig(candidate)
 		if err != nil {
-			s.log.Error().Msgf("applying default config for '%s': %v", candidate.Name(), err)
+			s.log.Error().Msgf("applying default config for %q: %v", candidate.Name(), err)
 		}
 	}
 }
@@ -48,7 +48,7 @@ func (s *Service) applyDefaultConfig(candidate runtime.S) error {
 	if err != nil || cfgCurrent == nil {
 		cfgCurrent, err = s.CreateConfig(cfgPath)
 		if err != nil {
-			return fmt.Errorf("creating config '%s': %v", cfgPath, err)
+			return fmt.Errorf("creating config %q: %v", cfgPath, err)
 		}
 	}
 
@@ -59,7 +59,7 @@ func (s *Service) applyDefaultConfig(candidate runtime.S) error {
 		}
 	}
 
-	s.log.Info().Msgf("config file for '%s' service can be found at: %v", name, s.GetPath(target.ConfigFilePath()))
+	s.log.Info().Msgf("config file for %q service can be found at: %v", name, s.GetPath(target.ConfigFilePath()))
 
 	return s.SaveConfig(cfgPath)
 }

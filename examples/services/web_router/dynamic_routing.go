@@ -122,7 +122,7 @@ func (s *Service) bindNewRoutes(rt runtime.R) {
 		if r, ok := candidate.(IsRouteInitializer); ok {
 			r.InitRoutes(s.root.Group(groupPrefix))
 			s.boundServices[svcToInit.Name()] = nil // make 0-size entry
-			s.log.Info().Msgf("binding routes for the '%s' service", svcToInit.Name())
+			s.log.Info().Msgf("binding routes for the %q service", svcToInit.Name())
 
 			continue
 		}

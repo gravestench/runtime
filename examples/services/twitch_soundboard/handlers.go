@@ -33,7 +33,12 @@ func (s *Service) OnTwitchPrivateMessage(message twitch.PrivateMessage) {
 			}
 		}()
 
-		s.log.Info().Str("chat message", message.Message).Str("trigger", trigger).Str("sound", soundPath).Msg("playing audio")
+		s.log.Info().
+			Str("chat message", message.Message).
+			Str("trigger", trigger).
+			Str("sound", soundPath).
+			Msg("playing audio")
+
 		if s.notification != nil {
 			s.notification.Notify("Twitch", fmt.Sprintf("playing %v", soundPath), "/home/gravestench/Downloads/twitch_favicon.png")
 		}
