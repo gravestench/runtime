@@ -4,11 +4,6 @@ import (
 	"github.com/gravestench/runtime"
 )
 
-const (
-	eventFoo = "foo"
-	eventBar = "bar"
-)
-
 func main() {
 	rt := runtime.New()
 

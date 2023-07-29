@@ -94,5 +94,6 @@ type HasGracefulShutdown interface {
 // a method that the runtime uses to pass a global event emitter to the service.
 type UsesEventBus interface {
 	IsRuntimeService
+
 	BindsEvents(*ee.EventEmitter)
 }

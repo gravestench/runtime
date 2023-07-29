@@ -29,6 +29,8 @@ type HasDefaultConfig interface {
 	DefaultConfig() Config // DefaultConfig returns the default configuration.
 }
 
+type Dependency = Manager
+
 // Manager represents something that manages configurations.
 type Manager interface {
 	GetPath(path string) string

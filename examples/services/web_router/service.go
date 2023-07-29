@@ -13,7 +13,7 @@ import (
 
 type Service struct {
 	log        *zerolog.Logger
-	cfgManager config_file.Manager
+	cfgManager config_file.Dependency
 
 	root *gin.Engine
 

@@ -19,8 +19,8 @@ func (s *Service) DependenciesResolved() bool {
 
 func (s *Service) ResolveDependencies(rt runtime.R) {
 	for _, service := range rt.Services() {
-		if cfgManager, ok := service.(config_file.Manager); ok {
-			s.cfgManager = cfgManager
+		if candidate, ok := service.(config_file.Dependency); ok {
+			s.cfgManager = candidate
 		}
 	}
 }

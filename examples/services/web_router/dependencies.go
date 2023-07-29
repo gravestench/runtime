@@ -6,15 +6,15 @@ import (
 )
 
 func (s *Service) DependenciesResolved() bool {
-	if s.cfgManager != nil {
+	if s.cfgManager == nil {
 		return false
 	}
 
 	return true
 }
 
-func (s *Service) ResolveDependencies(manager runtime.R) {
-	for _, other := range manager.Services() {
+func (s *Service) ResolveDependencies(rt runtime.R) {
+	for _, other := range rt.Services() {
 		if cfg, ok := other.(config_file.Manager); ok {
 			s.cfgManager = cfg
 		}

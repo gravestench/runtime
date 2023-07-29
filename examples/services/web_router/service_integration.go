@@ -17,17 +17,11 @@ var (
 
 type Dependency = IsWebRouter
 
-// Router is just responsible for yielding the root route handler.
+// IsWebRouter is just responsible for yielding the root route handler.
 // Services will use this in order to set up their own routes.
 type IsWebRouter interface {
 	RouteRoot() *gin.Engine
 	Reload()
-}
-
-// HasRouteSlug describes a service that has an identifier that is used
-// as a prefix for its subroutes
-type HasRouteSlug interface {
-	Slug() string
 }
 
 // IsRouteInitializer is a type of service that will
@@ -35,4 +29,10 @@ type HasRouteSlug interface {
 type IsRouteInitializer interface {
 	runtime.Service
 	InitRoutes(*gin.RouterGroup)
+}
+
+// HasRouteSlug describes a service that has an identifier that is used
+// as a prefix for its subroutes
+type HasRouteSlug interface {
+	Slug() string
 }

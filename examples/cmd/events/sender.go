@@ -28,7 +28,9 @@ func (s *sender) BindsEvents(emitter *ee.EventEmitter) {
 
 func (s *sender) Init(rt pkg.IsRuntime) {
 	s.logger.Info().Msgf("emitting event in 3 seconds...")
+
 	time.Sleep(time.Second * 3)
+
 	s.events.Emit("test", "foo", 1, 2.3, []int{4, 5})
 }
 

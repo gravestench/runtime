@@ -223,6 +223,7 @@ func (r *Runtime) onEventServiceRemoved(args ...any) {
 		r.logger.Debug().Msgf("removing service %q", service.Name())
 	}
 }
+
 func (r *Runtime) onEventServiceInitialized(args ...any) {
 	if len(args) < 1 {
 		return
@@ -232,6 +233,7 @@ func (r *Runtime) onEventServiceInitialized(args ...any) {
 		r.logger.Debug().Msgf("service %q initialization complete", service.Name())
 	}
 }
+
 func (r *Runtime) onEventServiceEventsBound(args ...any) {
 	if len(args) < 1 {
 		return
@@ -241,6 +243,7 @@ func (r *Runtime) onEventServiceEventsBound(args ...any) {
 		r.logger.Debug().Msgf("events bound for service %q", service.Name())
 	}
 }
+
 func (r *Runtime) onEventServiceLoggerBound(args ...any) {
 	if len(args) < 1 {
 		return
@@ -250,6 +253,7 @@ func (r *Runtime) onEventServiceLoggerBound(args ...any) {
 		r.logger.Debug().Msgf("logger bound for service %q", service.Name())
 	}
 }
+
 func (r *Runtime) onEventRuntimeRunLoopInitiated(_ ...any) {
 	r.logger.Debug().Msg("beginning run loop")
 }
