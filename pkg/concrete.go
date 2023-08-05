@@ -82,15 +82,20 @@ func (r *Runtime) Add(service IsRuntimeService) {
 	}
 
 	r.services = append(r.services, service)
-	r.events.Emit(events.EventServiceAdded, service)
 
 	// Check if the service is a HasDependencies
 	if resolver, ok := service.(HasDependencies); ok {
 		// Resolve dependencies before initialization
-		go r.resolveDependenciesAndInit(resolver)
+		go func() {
+			r.resolveDependenciesAndInit(resolver)
+			r.events.Emit(events.EventServiceAdded, service)
+		}()
 	} else {
 		// No dependencies to resolve, directly initialize the service
-		go r.initService(service)
+		go func() {
+			r.initService(service)
+			r.events.Emit(events.EventServiceAdded, service)
+		}()
 	}
 }
 
