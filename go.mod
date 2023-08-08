@@ -13,7 +13,7 @@ require (
 	github.com/gin-contrib/gzip v0.0.6
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.1.5
-	github.com/gravestench/eventemitter v0.0.0-20210902014026-73feeec3a47f
+	github.com/gravestench/eventemitter v0.0.0-20230808015001-bb9bc0be2ad9
 	github.com/hegedustibor/htgo-tts v0.0.0-20230402053941-cd8d1a158135
 	github.com/rs/zerolog v1.29.1
 	golang.org/x/oauth2 v0.0.0-20210113205817-d3ed898aa8a3
