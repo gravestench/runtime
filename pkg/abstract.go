@@ -24,6 +24,8 @@ type IsRuntime interface {
 
 	SetLogLevel(level zerolog.Level)
 
+	Events() *ee.EventEmitter
+
 	Shutdown()
 }
 
@@ -85,15 +87,4 @@ type HasGracefulShutdown interface {
 	// OnShutdown is called during the graceful shutdown process to perform
 	// custom actions before the service is stopped.
 	OnShutdown()
-}
-
-// UsesEventBus is an interface for services that require the use of the global
-// runtime event bus.
-//
-// The UsesEventBus interface extends the IsRuntimeService interface and adds
-// a method that the runtime uses to pass a global event emitter to the service.
-type UsesEventBus interface {
-	IsRuntimeService
-
-	BindsEvents(*ee.EventEmitter)
 }

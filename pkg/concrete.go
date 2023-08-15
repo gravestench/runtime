@@ -81,11 +81,6 @@ func (r *Runtime) Add(service IsRuntimeService) {
 		r.events.Emit(events.EventServiceLoggerBound, service)
 	}
 
-	if candidate, ok := service.(UsesEventBus); ok {
-		candidate.BindsEvents(r.events)
-		r.events.Emit(events.EventServiceEventsBound)
-	}
-
 	r.services = append(r.services, service)
 
 	// Check if the service is a HasDependencies
@@ -203,6 +198,11 @@ func (r *Runtime) Run() {
 	fmt.Printf("\033[2D") // Remove ^C from stdout
 
 	r.Shutdown()
+}
+
+// Events yields the global event bus for the runtime
+func (r *Runtime) Events() *ee.EventEmitter {
+	return r.events
 }
 
 func (r *Runtime) onEventServiceAdded(args ...any) {

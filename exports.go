@@ -23,7 +23,6 @@ type (
 	HasGracefulShutdown = pkg.HasGracefulShutdown
 	HasLogger           = pkg.HasLogger
 	HasDependencies     = pkg.HasDependencies
-	UsesEventBus        = pkg.UsesEventBus
 )
 
 var New = pkg.New
