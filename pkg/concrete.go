@@ -81,6 +81,11 @@ func (r *Runtime) Add(service IsRuntimeService) {
 		r.events.Emit(events.EventServiceLoggerBound, service)
 	}
 
+	if candidate, ok := service.(UsesEventBus); ok {
+		candidate.BindsEvents(r.events)
+		r.events.Emit(events.EventServiceEventsBound)
+	}
+
 	r.services = append(r.services, service)
 
 	// Check if the service is a HasDependencies
@@ -139,11 +144,6 @@ func (r *Runtime) initService(service IsRuntimeService) {
 		l.Logger().Debug().Msg("initializing")
 	} else {
 		newLogger(service, r.logger.GetLevel()).Debug().Msgf("initializing")
-	}
-
-	if candidate, ok := service.(UsesEventBus); ok {
-		candidate.BindsEvents(r.events)
-		r.events.Emit(events.EventServiceEventsBound)
 	}
 
 	// Initialize the service
