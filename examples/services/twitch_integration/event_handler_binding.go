@@ -33,75 +33,118 @@ func (s *Service) bindService(service runtime.Service) {
 		return
 	}
 
+	cfg, err := s.Config()
+	if err != nil {
+		s.Logger().Fatal().Msgf("getting config: %v", err)
+	}
+
+	cfgGroup := cfg.Group("handlers")
+
 	if handler, ok := service.(OnConnect); ok {
-		s.twitchIrcClient.OnConnect(handler.OnTwitchConnect)
+		if cfgGroup.GetBool("OnConnect") {
+			s.twitchIrcClient.OnConnect(handler.OnTwitchConnect)
+		}
 	}
 
 	if handler, ok := service.(OnWhisperMessage); ok {
-		s.twitchIrcClient.OnWhisperMessage(handler.OnTwitchWhisperMessage)
+		if cfgGroup.GetBool("OnWhisperMessage") {
+			s.twitchIrcClient.OnWhisperMessage(handler.OnTwitchWhisperMessage)
+		}
 	}
 
 	if handler, ok := service.(OnPrivateMessage); ok {
-		s.twitchIrcClient.OnPrivateMessage(handler.OnTwitchPrivateMessage)
+		if cfgGroup.GetBool("OnPrivateMessage") {
+			s.twitchIrcClient.OnPrivateMessage(handler.OnTwitchPrivateMessage)
+		}
 	}
 
 	if handler, ok := service.(OnClearChatMessage); ok {
-		s.twitchIrcClient.OnClearChatMessage(handler.OnTwitchClearChatMessage)
+		if cfgGroup.GetBool("OnClearChatMessage") {
+			s.twitchIrcClient.OnClearChatMessage(handler.OnTwitchClearChatMessage)
+		}
 	}
 
 	if handler, ok := service.(OnClearMessage); ok {
-		s.twitchIrcClient.OnClearMessage(handler.OnTwitchClearMessage)
+		if cfgGroup.GetBool("OnClearMessage") {
+			s.twitchIrcClient.OnClearMessage(handler.OnTwitchClearMessage)
+		}
 	}
 
 	if handler, ok := service.(OnRoomStateMessage); ok {
-		s.twitchIrcClient.OnRoomStateMessage(handler.OnTwitchRoomStateMessage)
+		if cfgGroup.GetBool("OnRoomStateMessage") {
+			s.twitchIrcClient.OnRoomStateMessage(handler.OnTwitchRoomStateMessage)
+		}
 	}
 
 	if handler, ok := service.(OnUserNoticeMessage); ok {
-		s.twitchIrcClient.OnUserNoticeMessage(handler.OnTwitchUserNoticeMessage)
+		if cfgGroup.GetBool("OnUserNoticeMessage") {
+			s.twitchIrcClient.OnUserNoticeMessage(handler.OnTwitchUserNoticeMessage)
+		}
 	}
 
 	if handler, ok := service.(OnUserStateMessage); ok {
-		s.twitchIrcClient.OnUserStateMessage(handler.OnTwitchUserStateMessage)
+		if cfgGroup.GetBool("OnUserStateMessage") {
+			s.twitchIrcClient.OnUserStateMessage(handler.OnTwitchUserStateMessage)
+		}
 	}
 
 	if handler, ok := service.(OnGlobalUserStateMessage); ok {
-		s.twitchIrcClient.OnGlobalUserStateMessage(handler.OnTwitchGlobalUserStateMessage)
+		if cfgGroup.GetBool("OnGlobalUserStateMessage") {
+			s.twitchIrcClient.OnGlobalUserStateMessage(handler.OnTwitchGlobalUserStateMessage)
+		}
 	}
 
 	if handler, ok := service.(OnNoticeMessage); ok {
-		s.twitchIrcClient.OnNoticeMessage(handler.OnTwitchNoticeMessage)
+		if cfgGroup.GetBool("OnNoticeMessage") {
+			s.twitchIrcClient.OnNoticeMessage(handler.OnTwitchNoticeMessage)
+		}
 	}
 
 	if handler, ok := service.(OnUserJoinMessage); ok {
-		s.twitchIrcClient.OnUserJoinMessage(handler.OnTwitchUserJoinMessage)
+		if cfgGroup.GetBool("OnUserJoinMessage") {
+			s.twitchIrcClient.OnUserJoinMessage(handler.OnTwitchUserJoinMessage)
+		}
 	}
 
 	if handler, ok := service.(OnUserPartMessage); ok {
-		s.twitchIrcClient.OnUserPartMessage(handler.OnTwitchUserPartMessage)
+		if cfgGroup.GetBool("OnUserPartMessage") {
+			s.twitchIrcClient.OnUserPartMessage(handler.OnTwitchUserPartMessage)
+		}
 	}
 
 	if handler, ok := service.(OnReconnectMessage); ok {
-		s.twitchIrcClient.OnReconnectMessage(handler.OnTwitchReconnectMessage)
+		if cfgGroup.GetBool("OnReconnectMessage") {
+			s.twitchIrcClient.OnReconnectMessage(handler.OnTwitchReconnectMessage)
+		}
 	}
 
 	if handler, ok := service.(OnNamesMessage); ok {
-		s.twitchIrcClient.OnNamesMessage(handler.OnTwitchNamesMessage)
+		if cfgGroup.GetBool("OnNamesMessage") {
+			s.twitchIrcClient.OnNamesMessage(handler.OnTwitchNamesMessage)
+		}
 	}
 
 	if handler, ok := service.(OnPingMessage); ok {
-		s.twitchIrcClient.OnPingMessage(handler.OnTwitchPingMessage)
+		if cfgGroup.GetBool("OnPingMessage") {
+			s.twitchIrcClient.OnPingMessage(handler.OnTwitchPingMessage)
+		}
 	}
 
 	if handler, ok := service.(OnPongMessage); ok {
-		s.twitchIrcClient.OnPongMessage(handler.OnTwitchPongMessage)
+		if cfgGroup.GetBool("OnPongMessage") {
+			s.twitchIrcClient.OnPongMessage(handler.OnTwitchPongMessage)
+		}
 	}
 
 	if handler, ok := service.(OnUnsetMessage); ok {
-		s.twitchIrcClient.OnUnsetMessage(handler.OnTwitchUnsetMessage)
+		if cfgGroup.GetBool("OnUnsetMessage") {
+			s.twitchIrcClient.OnUnsetMessage(handler.OnTwitchUnsetMessage)
+		}
 	}
 
 	if handler, ok := service.(OnPingSent); ok {
-		s.twitchIrcClient.OnPingSent(handler.OnTwitchPingSent)
+		if cfgGroup.GetBool("OnPingSent") {
+			s.twitchIrcClient.OnPingSent(handler.OnTwitchPingSent)
+		}
 	}
 }
