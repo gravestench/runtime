@@ -3,10 +3,10 @@ package config_file
 import (
 	"sync"
 
-	ee "github.com/gravestench/eventemitter"
 	"github.com/rs/zerolog"
 
 	"github.com/gravestench/runtime"
+	"github.com/gravestench/runtime/pkg/events"
 )
 
 const (
@@ -18,7 +18,6 @@ const (
 type Service struct {
 	log                        *zerolog.Logger
 	mux                        sync.Mutex
-	events                     *ee.EventEmitter
 	configs                    map[string]*Config
 	servicesWithDefaultConfigs map[string]HasDefaultConfig
 	RootDirectory              string
@@ -40,9 +39,27 @@ func (s *Service) Name() string {
 }
 
 // Init satisfies the runtime.IsRuntimeService interface
-func (s *Service) Init(manager runtime.Runtime) {
+func (s *Service) Init(rt runtime.Runtime) {
 	s.configs = make(map[string]*Config)
 	s.servicesWithDefaultConfigs = make(map[string]HasDefaultConfig)
 
-	go s.loopApplyDefaultConfigs(manager)
+	for _, candidate := range rt.Services() {
+		err := s.applyDefaultConfig(candidate)
+		if err != nil {
+			s.log.Error().Msgf("applying default config for %q: %v", candidate.Name(), err)
+		}
+	}
+
+	rt.Events().On(events.EventServiceAdded, func(args ...any) {
+		if len(args) < 1 {
+			return
+		}
+
+		if candidate, ok := args[0].(runtime.Service); ok {
+			err := s.applyDefaultConfig(candidate)
+			if err != nil {
+				s.log.Error().Msgf("applying default config for %q: %v", candidate.Name(), err)
+			}
+		}
+	})
 }

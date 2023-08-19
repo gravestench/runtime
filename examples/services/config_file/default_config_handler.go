@@ -2,27 +2,9 @@ package config_file
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/gravestench/runtime"
 )
-
-func (s *Service) loopApplyDefaultConfigs(manager runtime.R) {
-	for {
-		time.Sleep(time.Second)
-
-		s.handleApplyDefaultConfig(manager)
-	}
-}
-
-func (s *Service) handleApplyDefaultConfig(manager runtime.R) {
-	for _, candidate := range manager.Services() {
-		err := s.applyDefaultConfig(candidate)
-		if err != nil {
-			s.log.Error().Msgf("applying default config for %q: %v", candidate.Name(), err)
-		}
-	}
-}
 
 func (s *Service) applyDefaultConfig(candidate runtime.S) error {
 	// check if the service does not have defaults
