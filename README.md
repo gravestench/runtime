@@ -8,32 +8,16 @@ module are abstract interfaces for the runtime (`IsRuntime`) and runtime
 services (`IsRuntimeService`), as well as other interfaces for logging, 
 dependency injection, and graceful shutdown.
 
-## Installation
-
-To use the Runtime package in your Go project, you can simply import it as follows:
-
+## Examples & Usage
 ```go
 import "github.com/gravestench/runtime"
 ```
-
-## Examples & Usage
-
-Please see the `examples` directory for concrete service implementations and
-runtime usage examples.
-
-Here's an example of how to use the `Runtime` with the provided concrete implementation:
-
 ```go
-package main
-
-import (
-	"fmt"
-	"os"
-	"os/signal"
-
-	"github.com/gravestench/runtime"
-)
-
+// compilation error if we dont implement runtime.Service
+var _ runtime.Service = &MyService{}
+```
+```golang
+// minimal service implementation
 type MyService struct {
 	// Your service fields
 }
@@ -45,7 +29,9 @@ func (s *MyService) Init(manager runtime.IsRuntime) {
 func (s *MyService) Name() string {
 	return "MyService"
 }
-
+```
+```golang
+// main.go should look like this
 func main() {
 	// Create a new instance of the Runtime Manager
 	r := runtime.New("My Runtime")
@@ -61,9 +47,11 @@ func main() {
 }
 ```
 
-In this example, you create a new instance of the `Runtime` manager using `runtime.New()`,
-add your service using `runtime.Add()`, and then run the manager with `runtime.Run()`.
-The manager takes care of initializing your service and managing its lifecycle.
+In this example, we create a new instance of the `Runtime` manager using `runtime.New()`,
+add our service using `runtime.Add()`, and then run the manager with `runtime.Run()`.
+The manager takes care of initializing the service and managing its lifecycle.
+
+for more examples see [the examples repo](https://github.com/gravestench/runtime-examples).
 
 ## Adding Services
 
