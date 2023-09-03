@@ -60,6 +60,8 @@ func (r *Runtime) Init(_ IsRuntime) {
 
 // Add a single service to the Runtime manager.
 func (r *Runtime) Add(service IsRuntimeService) {
+	r.logger.Info().Msgf("adding service %q", service.Name())
+
 	r.bindEventHandlerInterfaces(service)
 	r.Init(r)
 
@@ -238,7 +240,7 @@ func (r *Runtime) OnServiceAdded(args ...any) {
 
 	if service, ok := args[0].(IsRuntimeService); ok {
 		if service != r {
-			r.logger.Info().Msgf("added service %q", service.Name())
+			r.logger.Info().Msgf("service %q has been added", service.Name())
 		}
 	}
 }
