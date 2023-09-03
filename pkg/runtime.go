@@ -60,10 +60,10 @@ func (r *Runtime) Init(_ IsRuntime) {
 
 // Add a single service to the Runtime manager.
 func (r *Runtime) Add(service IsRuntimeService) {
-	r.logger.Info().Msgf("adding service %q", service.Name())
-
+	r.Init(nil) // always ensure runtime is init
 	r.bindEventHandlerInterfaces(service)
-	r.Init(r)
+
+	r.logger.Info().Msgf("preparing service %q", service.Name())
 
 	// Check if the service uses a logger
 	if loggerUser, ok := service.(HasLogger); ok {
