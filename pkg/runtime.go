@@ -60,7 +60,7 @@ func (r *Runtime) Init(_ IsRuntime) {
 
 // Add a single service to the Runtime manager.
 func (r *Runtime) Add(service IsRuntimeService) {
-	r.bindEventHandlerIntefaces(service)
+	r.bindEventHandlerInterfaces(service)
 	r.Init(r)
 
 	// Check if the service uses a logger
@@ -193,7 +193,7 @@ func (r *Runtime) Events() *ee.EventEmitter {
 	return r.events
 }
 
-func (r *Runtime) bindEventHandlerIntefaces(service IsRuntimeService) {
+func (r *Runtime) bindEventHandlerInterfaces(service IsRuntimeService) {
 	if handler, ok := service.(EventHandlerServiceAdded); ok {
 		r.Events().On(events.EventServiceAdded, handler.OnServiceAdded)
 	}
