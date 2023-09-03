@@ -238,7 +238,7 @@ func (r *Runtime) OnServiceAdded(args ...any) {
 
 	if service, ok := args[0].(IsRuntimeService); ok {
 		if service != r {
-			r.logger.Info().Msgf("adding service %q", service.Name())
+			r.logger.Info().Msgf("added service %q", service.Name())
 		}
 	}
 }
@@ -253,7 +253,7 @@ func (r *Runtime) OnServiceRemoved(args ...any) {
 	}
 
 	if service, ok := args[0].(IsRuntimeService); ok {
-		r.logger.Debug().Msgf("removing service %q", service.Name())
+		r.logger.Debug().Msgf("removed service %q", service.Name())
 	}
 }
 
@@ -263,7 +263,7 @@ func (r *Runtime) OnServiceInitialized(args ...any) {
 	}
 
 	if service, ok := args[0].(IsRuntimeService); ok {
-		r.logger.Debug().Msgf("service %q initialization complete", service.Name())
+		r.logger.Debug().Msgf("service %q initialized", service.Name())
 	}
 }
 
@@ -288,7 +288,7 @@ func (r *Runtime) OnServiceLoggerBound(args ...any) {
 }
 
 func (r *Runtime) OnRuntimeRunLoopInitiated(_ ...any) {
-	r.logger.Debug().Msg("beginning run loop")
+	r.logger.Debug().Msg("run loop started")
 }
 
 func (r *Runtime) OnDependencyResolutionStarted(args ...any) {
