@@ -15,7 +15,7 @@ import (
 
 var _ IsRuntime = &Runtime{}
 
-// Runtime represents a manager for runtime services.
+// Runtime represents a collection of runtime services.
 type Runtime struct {
 	name     string
 	quit     chan os.Signal
@@ -37,26 +37,13 @@ func New(args ...string) *Runtime {
 		events: ee.New(),
 	}
 
-	for event, handler := range map[string]func(...any){
-		events.EventServiceAdded:                r.onEventServiceAdded,
-		events.EventServiceRemoved:              r.onEventServiceRemoved,
-		events.EventServiceInitialized:          r.onEventServiceInitialized,
-		events.EventServiceEventsBound:          r.onEventServiceEventsBound,
-		events.EventServiceLoggerBound:          r.onEventServiceLoggerBound,
-		events.EventRuntimeShutdownInitiated:    r.onEventRuntimeShutdownInitiated,
-		events.EventRuntimeRunLoopInitiated:     r.onEventRuntimeRunLoopInitiated,
-		events.EventDependencyResolutionStarted: r.onEventDependencyResolutionStarted,
-		events.EventDependencyResolutionEnded:   r.onEventDependencyResolutionEnded,
-	} {
-		r.events.On(event, handler)
-	}
+	// the runtime itself is a service that binds handlers to its own events
+	r.Add(r)
 
-	r.ensureInit()
 	return r
 }
 
-// ensureInit initializes the Runtime manager.
-func (r *Runtime) ensureInit() {
+func (r *Runtime) Init(_ IsRuntime) {
 	if r.services != nil {
 		return
 	}
@@ -73,7 +60,8 @@ func (r *Runtime) ensureInit() {
 
 // Add a single service to the Runtime manager.
 func (r *Runtime) Add(service IsRuntimeService) {
-	r.ensureInit()
+	r.bindEventHandlerIntefaces(service)
+	r.Init(r)
 
 	// Check if the service uses a logger
 	if loggerUser, ok := service.(HasLogger); ok {
@@ -205,21 +193,61 @@ func (r *Runtime) Events() *ee.EventEmitter {
 	return r.events
 }
 
-func (r *Runtime) onEventServiceAdded(args ...any) {
+func (r *Runtime) bindEventHandlerIntefaces(service IsRuntimeService) {
+	if handler, ok := service.(EventHandlerServiceAdded); ok {
+		r.Events().On(events.EventServiceAdded, handler.OnServiceAdded)
+	}
+
+	if handler, ok := service.(EventHandlerServiceRemoved); ok {
+		r.Events().On(events.EventServiceRemoved, handler.OnServiceRemoved)
+	}
+
+	if handler, ok := service.(EventHandlerServiceInitialized); ok {
+		r.Events().On(events.EventServiceInitialized, handler.OnServiceInitialized)
+	}
+
+	if handler, ok := service.(EventHandlerServiceEventsBound); ok {
+		r.Events().On(events.EventServiceEventsBound, handler.OnServiceEventsBound)
+	}
+
+	if handler, ok := service.(EventHandlerServiceLoggerBound); ok {
+		r.Events().On(events.EventServiceLoggerBound, handler.OnServiceLoggerBound)
+	}
+
+	if handler, ok := service.(EventHandlerRuntimeRunLoopInitiated); ok {
+		r.Events().On(events.EventRuntimeRunLoopInitiated, handler.OnRuntimeRunLoopInitiated)
+	}
+
+	if handler, ok := service.(EventHandlerRuntimeShutdownInitiated); ok {
+		r.Events().On(events.EventRuntimeShutdownInitiated, handler.OnRuntimeShutdownInitiated)
+	}
+
+	if handler, ok := service.(EventHandlerDependencyResolutionStarted); ok {
+		r.Events().On(events.EventDependencyResolutionStarted, handler.OnDependencyResolutionStarted)
+	}
+
+	if handler, ok := service.(EventHandlerDependencyResolutionEnded); ok {
+		r.Events().On(events.EventDependencyResolutionEnded, handler.OnDependencyResolutionEnded)
+	}
+}
+
+func (r *Runtime) OnServiceAdded(args ...any) {
 	if len(args) < 1 {
 		return
 	}
 
 	if service, ok := args[0].(IsRuntimeService); ok {
-		r.logger.Info().Msgf("adding service %q", service.Name())
+		if service != r {
+			r.logger.Info().Msgf("adding service %q", service.Name())
+		}
 	}
 }
 
-func (r *Runtime) onEventRuntimeShutdownInitiated(_ ...any) {
+func (r *Runtime) OnRuntimeShutdownInitiated(_ ...any) {
 	r.logger.Warn().Msg("initiating graceful shutdown")
 }
 
-func (r *Runtime) onEventServiceRemoved(args ...any) {
+func (r *Runtime) OnServiceRemoved(args ...any) {
 	if len(args) < 1 {
 		return
 	}
@@ -229,7 +257,7 @@ func (r *Runtime) onEventServiceRemoved(args ...any) {
 	}
 }
 
-func (r *Runtime) onEventServiceInitialized(args ...any) {
+func (r *Runtime) OnServiceInitialized(args ...any) {
 	if len(args) < 1 {
 		return
 	}
@@ -239,7 +267,7 @@ func (r *Runtime) onEventServiceInitialized(args ...any) {
 	}
 }
 
-func (r *Runtime) onEventServiceEventsBound(args ...any) {
+func (r *Runtime) OnServiceEventsBound(args ...any) {
 	if len(args) < 1 {
 		return
 	}
@@ -249,7 +277,7 @@ func (r *Runtime) onEventServiceEventsBound(args ...any) {
 	}
 }
 
-func (r *Runtime) onEventServiceLoggerBound(args ...any) {
+func (r *Runtime) OnServiceLoggerBound(args ...any) {
 	if len(args) < 1 {
 		return
 	}
@@ -259,11 +287,11 @@ func (r *Runtime) onEventServiceLoggerBound(args ...any) {
 	}
 }
 
-func (r *Runtime) onEventRuntimeRunLoopInitiated(_ ...any) {
+func (r *Runtime) OnRuntimeRunLoopInitiated(_ ...any) {
 	r.logger.Debug().Msg("beginning run loop")
 }
 
-func (r *Runtime) onEventDependencyResolutionStarted(args ...any) {
+func (r *Runtime) OnDependencyResolutionStarted(args ...any) {
 	if len(args) < 1 {
 		return
 	}
@@ -273,7 +301,7 @@ func (r *Runtime) onEventDependencyResolutionStarted(args ...any) {
 	}
 }
 
-func (r *Runtime) onEventDependencyResolutionEnded(args ...any) {
+func (r *Runtime) OnDependencyResolutionEnded(args ...any) {
 	if len(args) < 1 {
 		return
 	}
