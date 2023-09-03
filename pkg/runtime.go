@@ -63,7 +63,9 @@ func (r *Runtime) Add(service IsRuntimeService) {
 	r.Init(nil) // always ensure runtime is init
 	r.bindEventHandlerInterfaces(service)
 
-	r.logger.Info().Msgf("preparing service %q", service.Name())
+	if service != r {
+		r.logger.Info().Msgf("preparing service %q", service.Name())
+	}
 
 	// Check if the service uses a logger
 	if loggerUser, ok := service.(HasLogger); ok {
@@ -197,38 +199,65 @@ func (r *Runtime) Events() *ee.EventEmitter {
 
 func (r *Runtime) bindEventHandlerInterfaces(service IsRuntimeService) {
 	if handler, ok := service.(EventHandlerServiceAdded); ok {
+		if service != r {
+			r.logger.Info().Msgf("bound 'EventServiceAdded' event handler for service %q", service.Name())
+		}
 		r.Events().On(events.EventServiceAdded, handler.OnServiceAdded)
 	}
 
 	if handler, ok := service.(EventHandlerServiceRemoved); ok {
+		if service != r {
+			r.logger.Info().Msgf("bound 'EventServiceRemoved' event handler for service %q", service.Name())
+		}
 		r.Events().On(events.EventServiceRemoved, handler.OnServiceRemoved)
 	}
 
 	if handler, ok := service.(EventHandlerServiceInitialized); ok {
+		if service != r {
+			r.logger.Info().Msgf("bound 'EventServiceInitialized' event handler for service %q", service.Name())
+		}
 		r.Events().On(events.EventServiceInitialized, handler.OnServiceInitialized)
 	}
 
 	if handler, ok := service.(EventHandlerServiceEventsBound); ok {
+		if service != r {
+			r.logger.Info().Msgf("bound 'EventServiceEventsBound' event handler for service %q", service.Name())
+		}
 		r.Events().On(events.EventServiceEventsBound, handler.OnServiceEventsBound)
 	}
 
 	if handler, ok := service.(EventHandlerServiceLoggerBound); ok {
+		if service != r {
+			r.logger.Info().Msgf("bound 'EventServiceLoggerBound' event handler for service %q", service.Name())
+		}
 		r.Events().On(events.EventServiceLoggerBound, handler.OnServiceLoggerBound)
 	}
 
 	if handler, ok := service.(EventHandlerRuntimeRunLoopInitiated); ok {
+		if service != r {
+			r.logger.Info().Msgf("bound 'EventRuntimeRunLoopInitiated' event handler for service %q", service.Name())
+		}
 		r.Events().On(events.EventRuntimeRunLoopInitiated, handler.OnRuntimeRunLoopInitiated)
 	}
 
 	if handler, ok := service.(EventHandlerRuntimeShutdownInitiated); ok {
+		if service != r {
+			r.logger.Info().Msgf("bound 'EventRuntimeShutdownInitiated' event handler for service %q", service.Name())
+		}
 		r.Events().On(events.EventRuntimeShutdownInitiated, handler.OnRuntimeShutdownInitiated)
 	}
 
 	if handler, ok := service.(EventHandlerDependencyResolutionStarted); ok {
+		if service != r {
+			r.logger.Info().Msgf("bound 'EventDependencyResolutionStarted' event handler for service %q", service.Name())
+		}
 		r.Events().On(events.EventDependencyResolutionStarted, handler.OnDependencyResolutionStarted)
 	}
 
 	if handler, ok := service.(EventHandlerDependencyResolutionEnded); ok {
+		if service != r {
+			r.logger.Info().Msgf("bound 'EventDependencyResolutionEnded' event handler for service %q", service.Name())
+		}
 		r.Events().On(events.EventDependencyResolutionEnded, handler.OnDependencyResolutionEnded)
 	}
 }
