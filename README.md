@@ -108,12 +108,14 @@ and assign the logger to your service using the `UseLogger()` method:
 
 ```go
 type HasLogger interface {
-	UseLogger(logger *zerolog.Logger)
+    IsRuntimeService
+    BindLogger(logger *zerolog.Logger)
+    Logger() *zerolog.Logger
 }
 ```
 
 ```go
-func (s *MyService) UseLogger(logger *zerolog.Logger) {
+func (s *MyService) BindLogger(logger *zerolog.Logger) {
 	// Assign the logger to your service
 	s.logger = logger
 }
@@ -122,7 +124,7 @@ func (s *MyService) UseLogger(logger *zerolog.Logger) {
 With the logger assigned, you can use it within your service to log messages:
 
 ```go
-s.logger.Info().Msg("Initialization complete")
+myService.logger.Info().Msg("foo")
 ```
 
 Make sure to import the `zerolog` library and create a logger instance within your
