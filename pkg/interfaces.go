@@ -1,6 +1,8 @@
 package pkg
 
 import (
+	"io"
+
 	ee "github.com/gravestench/eventemitter"
 	"github.com/rs/zerolog"
 )
@@ -23,6 +25,7 @@ type IsRuntime interface {
 	Services() []IsRuntimeService
 
 	SetLogLevel(level zerolog.Level)
+	SetLogDestination(dst io.Writer)
 
 	Events() *ee.EventEmitter
 
