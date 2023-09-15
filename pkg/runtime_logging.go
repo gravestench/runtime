@@ -49,6 +49,9 @@ func (r *Runtime) SetLogLevel(level zerolog.Level) {
 func (r *Runtime) SetLogDestination(dst io.Writer) {
 	r.stdOut = dst
 
+	newLogger := r.logger.Output(r.stdOut)
+	r.logger = &newLogger
+
 	// set the log level for each service that has a logger
 	for _, service := range r.Services() {
 		candidate, ok := service.(HasLogger)

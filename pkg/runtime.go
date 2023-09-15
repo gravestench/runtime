@@ -72,7 +72,7 @@ func (r *Runtime) Add(service IsRuntimeService) {
 
 	// Check if the service uses a logger
 	if loggerUser, ok := service.(HasLogger); ok {
-		loggerUser.BindLogger(newLogger(service, r.logger.GetLevel()))
+		loggerUser.BindLogger(r.newLogger(service, r.logger.GetLevel()))
 		r.events.Emit(events.EventServiceLoggerBound, service)
 	}
 
@@ -114,7 +114,7 @@ func (r *Runtime) initService(service IsRuntimeService) {
 	if l, ok := service.(HasLogger); ok && l.Logger() != nil {
 		l.Logger().Debug().Msg("initializing")
 	} else {
-		newLogger(service, r.logger.GetLevel()).Debug().Msgf("initializing")
+		r.newLogger(service, r.logger.GetLevel()).Debug().Msgf("initializing")
 	}
 
 	// Initialize the service
