@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"time"
 
 	ee "github.com/gravestench/eventemitter"
@@ -62,9 +63,11 @@ func (r *Runtime) Init(_ IsRuntime) {
 }
 
 // Add a single service to the Runtime manager.
-func (r *Runtime) Add(service IsRuntimeService) {
+func (r *Runtime) Add(service IsRuntimeService) *sync.WaitGroup {
 	r.Init(nil) // always ensure runtime is init
 	r.bindEventHandlerInterfaces(service)
+
+	var wg sync.WaitGroup
 
 	if service != r {
 		r.logger.Info().Msgf("preparing service %q", service.Name())
@@ -72,8 +75,10 @@ func (r *Runtime) Add(service IsRuntimeService) {
 
 	// Check if the service uses a logger
 	if loggerUser, ok := service.(HasLogger); ok {
+		wg.Add(1)
 		loggerUser.BindLogger(r.newLogger(service, r.logger.GetLevel()))
-		r.events.Emit(events.EventServiceLoggerBound, service)
+		r.events.Emit(events.EventServiceLoggerBound, service).Wait()
+		wg.Done()
 	}
 
 	r.services = append(r.services, service)
@@ -82,16 +87,22 @@ func (r *Runtime) Add(service IsRuntimeService) {
 	if resolver, ok := service.(HasDependencies); ok {
 		// Resolve dependencies before initialization
 		go func() {
+			wg.Add(1)
 			r.resolveDependenciesAndInit(resolver)
 			r.events.Emit(events.EventServiceAdded, service)
+			wg.Done()
 		}()
 	} else {
 		// No dependencies to resolve, directly initialize the service
 		go func() {
+			wg.Add(1)
 			r.initService(service)
 			r.events.Emit(events.EventServiceAdded, service)
+			wg.Done()
 		}()
 	}
+
+	return &wg
 }
 
 func (r *Runtime) resolveDependenciesAndInit(resolver HasDependencies) {
@@ -130,8 +141,9 @@ func (r *Runtime) Services() []IsRuntimeService {
 }
 
 // Remove a specific service from the Runtime manager.
-func (r *Runtime) Remove(service IsRuntimeService) {
-	r.events.Emit(events.EventServiceRemoved)
+func (r *Runtime) Remove(service IsRuntimeService) *sync.WaitGroup {
+	wg := r.events.Emit(events.EventServiceRemoved)
+
 	for i, svc := range r.services {
 		if svc == service {
 			r.logger.Info().Msgf("removing %q service", service.Name())
@@ -139,11 +151,13 @@ func (r *Runtime) Remove(service IsRuntimeService) {
 			break
 		}
 	}
+
+	return wg
 }
 
 // Shutdown sends an interrupt signal to the Runtime, indicating it should exit.
-func (r *Runtime) Shutdown() {
-	r.events.Emit(events.EventRuntimeShutdownInitiated)
+func (r *Runtime) Shutdown() *sync.WaitGroup {
+	wg := r.events.Emit(events.EventRuntimeShutdownInitiated)
 
 	for _, service := range r.services {
 		if quitter, ok := service.(HasGracefulShutdown); ok {
@@ -159,6 +173,8 @@ func (r *Runtime) Shutdown() {
 	}
 
 	r.logger.Info().Msg("exiting")
+
+	return wg
 }
 
 // Name returns the name of the Runtime manager.
@@ -173,7 +189,8 @@ func (r *Runtime) Run() {
 	<-r.quit              // blocks until signal is recieved
 	fmt.Printf("\033[2D") // Remove ^C from stdout
 
-	r.Shutdown()
+	r.Shutdown().Wait()
+	os.Exit(0)
 }
 
 // Events yields the global event bus for the runtime

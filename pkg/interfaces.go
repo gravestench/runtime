@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"io"
+	"sync"
 
 	ee "github.com/gravestench/eventemitter"
 	"github.com/rs/zerolog"
@@ -15,10 +16,10 @@ import (
 // work with them and do things automatically on their behalf.
 type IsRuntime interface {
 	// Add a single service to the IsRuntime.
-	Add(IsRuntimeService)
+	Add(IsRuntimeService) *sync.WaitGroup
 
 	// Remove a specific service from the IsRuntime.
-	Remove(IsRuntimeService)
+	Remove(IsRuntimeService) *sync.WaitGroup
 
 	// Services returns a pointer to a slice of interfaces representing the
 	// services currently managed by the service IsRuntime.
@@ -29,7 +30,7 @@ type IsRuntime interface {
 
 	Events() *ee.EventEmitter
 
-	Shutdown()
+	Shutdown() *sync.WaitGroup
 }
 
 // IsRuntimeService represents a generic service within a runtime.

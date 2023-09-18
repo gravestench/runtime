@@ -10,7 +10,7 @@ func TestRuntime(t *testing.T) {
 
 	go func() {
 		time.Sleep(time.Second * 3)
-		rt.Shutdown()
+		rt.Shutdown().Wait()
 	}()
 
 	rt.Run()
