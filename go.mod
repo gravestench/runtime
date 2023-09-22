@@ -3,7 +3,7 @@ module github.com/gravestench/runtime
 go 1.19
 
 require (
-	github.com/gravestench/eventemitter v0.0.0-20230917012622-9c67d0fb27f0
+	github.com/gravestench/eventemitter v0.0.0-20230922020203-3396fda0c951
 	github.com/rs/zerolog v1.29.1
 )
 
