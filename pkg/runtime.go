@@ -19,12 +19,13 @@ var _ IsRuntime = &Runtime{}
 
 // Runtime represents a collection of runtime services.
 type Runtime struct {
-	name     string
-	quit     chan os.Signal
-	services []IsRuntimeService
-	logger   *zerolog.Logger
-	stdOut   io.Writer
-	events   *ee.EventEmitter
+	name      string
+	quit      chan os.Signal
+	services  []IsRuntimeService
+	logger    *zerolog.Logger
+	logOutput io.Writer
+	logLevel  zerolog.Level
+	events    *ee.EventEmitter
 }
 
 // New creates a new instance of a Runtime.
@@ -36,9 +37,9 @@ func New(args ...string) *Runtime {
 	}
 
 	r := &Runtime{
-		name:   name,
-		events: ee.New(),
-		stdOut: os.Stdout,
+		name:      name,
+		events:    ee.New(),
+		logOutput: os.Stdout,
 	}
 
 	// the runtime itself is a service that binds handlers to its own events
@@ -52,7 +53,7 @@ func (r *Runtime) Init(_ IsRuntime) {
 		return
 	}
 
-	r.logger = r.newLogger(r, zerolog.InfoLevel)
+	r.logger = r.newLogger(r, zerolog.InfoLevel, r.logOutput)
 
 	r.logger.Info().Msgf("initializing")
 
@@ -76,7 +77,7 @@ func (r *Runtime) Add(service IsRuntimeService) *sync.WaitGroup {
 	// Check if the service uses a logger
 	if loggerUser, ok := service.(HasLogger); ok {
 		wg.Add(1)
-		loggerUser.BindLogger(r.newLogger(service, r.logger.GetLevel()))
+		loggerUser.BindLogger(r.newLogger(service, r.logger.GetLevel(), r.logOutput))
 		r.events.Emit(events.EventServiceLoggerBound, service).Wait()
 		wg.Done()
 	}
@@ -125,7 +126,7 @@ func (r *Runtime) initService(service IsRuntimeService) {
 	if l, ok := service.(HasLogger); ok && l.Logger() != nil {
 		l.Logger().Debug().Msg("initializing")
 	} else {
-		r.newLogger(service, r.logger.GetLevel()).Debug().Msgf("initializing")
+		r.newLogger(service, r.logger.GetLevel(), r.logOutput).Debug().Msgf("initializing")
 	}
 
 	// Initialize the service
