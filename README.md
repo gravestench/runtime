@@ -1,3 +1,6 @@
+# DEPRECATED
+see [Service Mesh](https://github.com/gravestench/servicemesh)
+
 # About
 
 This module provides an implementation of a "runtime", which is just a wrapper 
